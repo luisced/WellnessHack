@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		48FE68392EC699B400C45FB7 /* ElevenLabs in Frameworks */ = {isa = PBXBuildFile; productRef = 48FE68382EC699B400C45FB7 /* ElevenLabs */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		48FE67312EC6763B00C45FB7 /* WelnessHack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WelnessHack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48FE68392EC699B400C45FB7 /* ElevenLabs in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = WelnessHack;
 			packageProductDependencies = (
+				48FE68382EC699B400C45FB7 /* ElevenLabs */,
 			);
 			productName = WelnessHack;
 			productReference = 48FE67312EC6763B00C45FB7 /* WelnessHack.app */;
@@ -95,6 +101,7 @@
 			mainGroup = 48FE67282EC6763B00C45FB7;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				48FE68372EC699B400C45FB7 /* XCRemoteSwiftPackageReference "elevenlabs-swift-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 48FE67322EC6763B00C45FB7 /* Products */;
@@ -340,6 +347,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		48FE68372EC699B400C45FB7 /* XCRemoteSwiftPackageReference "elevenlabs-swift-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elevenlabs/elevenlabs-swift-sdk.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		48FE68382EC699B400C45FB7 /* ElevenLabs */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 48FE68372EC699B400C45FB7 /* XCRemoteSwiftPackageReference "elevenlabs-swift-sdk" */;
+			productName = ElevenLabs;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 48FE67292EC6763B00C45FB7 /* Project object */;
 }
