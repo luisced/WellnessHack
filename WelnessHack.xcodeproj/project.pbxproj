@@ -263,7 +263,7 @@
 				CODE_SIGN_ENTITLEMENTS = WelnessHack/WelnessHack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9BY9RQP8PP;
+				DEVELOPMENT_TEAM = CXRF4T527C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Necesitamos acceso a tus datos de salud para calcular tu nivel de energía";
@@ -298,7 +298,7 @@
 				CODE_SIGN_ENTITLEMENTS = WelnessHack/WelnessHack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9BY9RQP8PP;
+				DEVELOPMENT_TEAM = CXRF4T527C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Necesitamos acceso a tus datos de salud para calcular tu nivel de energía";
