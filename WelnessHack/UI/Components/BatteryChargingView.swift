@@ -16,7 +16,7 @@ struct BatteryChargingView: View {
                 
                 VStack(alignment: .leading, spacing: 12) {
                     // Score de batería
-                    Text("\(Int(batteryLevel * 100))")
+                    Text("\(Int(batteryLevel * 100))%")
                         .font(.system(size: 40, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                     
@@ -143,7 +143,7 @@ struct BatteryChargingView: View {
                     
                     // Level text
                     HStack {
-                        Text("\(Int(batteryLevel * 100))")
+                        Text("\(Int(batteryLevel * 100)) ")
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
@@ -170,7 +170,7 @@ struct BatteryChargingView: View {
     
     private var takeBreakButton: some View {
         Button(action: onBreakRequested) {
-            HStack(spacing: 12) {
+            HStack(spacing: 5) {
                 Image(systemName: "cup.and.saucer.fill")
                     .font(.title2)
                 
