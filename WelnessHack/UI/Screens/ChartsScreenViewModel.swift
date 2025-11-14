@@ -15,6 +15,11 @@ class ChartsScreenViewModel: ObservableObject {
     @Published var hrvAverage: Double?
     @Published var lastWorkout: WorkoutData?
     
+    @Published var bodyWeight: Double?
+    @Published var bodyMassIndex: Double?
+    @Published var caloriesConsumed: Double?
+    @Published var waterIntake: Double?
+    
     @Published var weeklyData: [(date: Date, score: Int)] = []
     @Published var weeklyActivity: [(date: Date, steps: Double, calories: Double, exercise: Double)] = []
     
@@ -63,30 +68,38 @@ class ChartsScreenViewModel: ObservableObject {
     // MARK: - Current Data
     
     private func loadCurrentData() async {
-        do {
-            // Fetch health data
-            sleepData = try await healthKitManager.fetchLastNightSleep()
-            hrvAverage = try await healthKitManager.fetchAverageHRV()
-            activityData = try await healthKitManager.fetchActivitySummary()
-            lastWorkout = try await healthKitManager.fetchLastWorkout()
-            
-            // Calculate body battery
-            currentBodyBattery = bodyBatteryCalculator.calculateBodyBattery(
-                sleepData: sleepData,
-                hrvAverage: hrvAverage,
-                activityData: activityData
-            )
-            
-            // Update battery level (0.0 - 1.0)
-            if let battery = currentBodyBattery {
-                batteryLevel = Double(battery.score) / 100.0
-            }
-            
-            print("✅ Current data loaded - Battery: \(currentBodyBattery?.score ?? 0)/100")
-            
-        } catch {
-            print("⚠️ Error loading current data: \(error)")
+        // Fetch health data (handle errors gracefully)
+        sleepData = try? await healthKitManager.fetchLastNightSleep()
+        hrvAverage = try? await healthKitManager.fetchAverageHRV()
+        activityData = try? await healthKitManager.fetchActivitySummary()
+        lastWorkout = try? await healthKitManager.fetchLastWorkout()
+        bodyWeight = try? await healthKitManager.fetchBodyWeight()
+        bodyMassIndex = try? await healthKitManager.fetchBodyMassIndex()
+        caloriesConsumed = try? await healthKitManager.fetchDailyCaloriesConsumed()
+        waterIntake = try? await healthKitManager.fetchDailyWaterIntake()
+        
+        // Calculate body battery (even with partial data)
+        currentBodyBattery = bodyBatteryCalculator.calculateBodyBattery(
+            sleepData: sleepData,
+            hrvAverage: hrvAverage,
+            activityData: activityData
+        )
+        
+        // Update battery level (0.0 - 1.0)
+        if let battery = currentBodyBattery {
+            batteryLevel = Double(battery.score) / 100.0
         }
+        
+        print("✅ Current data loaded:")
+        print("   Battery: \(currentBodyBattery?.score ?? 0)/100")
+        print("   Sleep: \(sleepData?.durationHours ?? 0)h")
+        print("   HRV: \(hrvAverage ?? 0) ms")
+        print("   Steps: \(activityData?.steps ?? 0)")
+        print("   Weight: \(bodyWeight.map { String(format: "%.1f", $0) } ?? "N/A") kg")
+        print("   BMI: \(bodyMassIndex.map { String(format: "%.1f", $0) } ?? "N/A")")
+        print("   Calories: \(caloriesConsumed.map { String(format: "%.0f", $0) } ?? "N/A") kcal")
+        print("   Water: \(waterIntake.map { String(format: "%.0f", $0) } ?? "N/A") ml")
+        print("   Last workout: \(lastWorkout?.activityName ?? "None")")
     }
     
     // MARK: - Weekly Data

@@ -35,6 +35,16 @@ class HealthKitManager: ObservableObject {
             HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!,
             HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!,
             
+            // Body Measurements
+            HKObjectType.quantityType(forIdentifier: .bodyMass)!,
+            HKObjectType.quantityType(forIdentifier: .height)!,
+            HKObjectType.quantityType(forIdentifier: .bodyMassIndex)!,
+            HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)!,
+            
+            // Nutrition
+            HKObjectType.quantityType(forIdentifier: .dietaryEnergyConsumed)!,
+            HKObjectType.quantityType(forIdentifier: .dietaryWater)!,
+            
             // Workouts
             HKObjectType.workoutType()
         ]
@@ -322,6 +332,120 @@ class HealthKitManager: ObservableObject {
         } else {
             return .sedentary
         }
+    }
+    
+    // MARK: - Body Measurements
+    
+    func fetchBodyWeight() async throws -> Double? {
+        guard let weightType = HKObjectType.quantityType(forIdentifier: .bodyMass) else {
+            return nil
+        }
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: Date().addingTimeInterval(-30 * 24 * 3600), // Last 30 days
+            end: Date(),
+            options: .strictStartDate
+        )
+        
+        let samples = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HKQuantitySample], Error>) in
+            let query = HKSampleQuery(
+                sampleType: weightType,
+                predicate: predicate,
+                limit: 1,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]
+            ) { _, samples, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                continuation.resume(returning: samples as? [HKQuantitySample] ?? [])
+            }
+            healthStore.execute(query)
+        }
+        
+        guard let sample = samples.first else { return nil }
+        return sample.quantity.doubleValue(for: .gramUnit(with: .kilo))
+    }
+    
+    func fetchBodyMassIndex() async throws -> Double? {
+        guard let bmiType = HKObjectType.quantityType(forIdentifier: .bodyMassIndex) else {
+            return nil
+        }
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: Date().addingTimeInterval(-30 * 24 * 3600),
+            end: Date(),
+            options: .strictStartDate
+        )
+        
+        let samples = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HKQuantitySample], Error>) in
+            let query = HKSampleQuery(
+                sampleType: bmiType,
+                predicate: predicate,
+                limit: 1,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]
+            ) { _, samples, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                continuation.resume(returning: samples as? [HKQuantitySample] ?? [])
+            }
+            healthStore.execute(query)
+        }
+        
+        guard let sample = samples.first else { return nil }
+        return sample.quantity.doubleValue(for: .count())
+    }
+    
+    // MARK: - Nutrition Data
+    
+    func fetchDailyCaloriesConsumed(for date: Date = Date()) async throws -> Double? {
+        guard let caloriesType = HKObjectType.quantityType(forIdentifier: .dietaryEnergyConsumed) else {
+            return nil
+        }
+        
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: startOfDay,
+            end: endOfDay,
+            options: .strictStartDate
+        )
+        
+        let sum = try await fetchQuantitySum(
+            identifier: .dietaryEnergyConsumed,
+            unit: .kilocalorie(),
+            predicate: predicate
+        )
+        
+        return sum > 0 ? sum : nil
+    }
+    
+    func fetchDailyWaterIntake(for date: Date = Date()) async throws -> Double? {
+        guard let waterType = HKObjectType.quantityType(forIdentifier: .dietaryWater) else {
+            return nil
+        }
+        
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: startOfDay,
+            end: endOfDay,
+            options: .strictStartDate
+        )
+        
+        let sum = try await fetchQuantitySum(
+            identifier: .dietaryWater,
+            unit: .literUnit(with: .milli),
+            predicate: predicate
+        )
+        
+        return sum > 0 ? sum : nil
     }
     
     // MARK: - Workout Data

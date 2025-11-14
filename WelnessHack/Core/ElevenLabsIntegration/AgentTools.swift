@@ -10,12 +10,12 @@ class AgentToolHandler {
     // MARK: - Tool: get_current_energy_score
     
     func getCurrentEnergyScore() async throws -> [String: Any] {
-        // Fetch latest health data
-        let sleepData = try await healthKitManager.fetchLastNightSleep()
-        let hrvAverage = try await healthKitManager.fetchAverageHRV()
-        let activityData = try await healthKitManager.fetchActivitySummary()
+        // Fetch latest health data (handle missing data gracefully)
+        let sleepData = try? await healthKitManager.fetchLastNightSleep()
+        let hrvAverage = try? await healthKitManager.fetchAverageHRV()
+        let activityData = try? await healthKitManager.fetchActivitySummary()
         
-        // Calculate body battery
+        // Calculate body battery (works even with nil values)
         let snapshot = bodyBatteryCalculator.calculateBodyBattery(
             sleepData: sleepData,
             hrvAverage: hrvAverage,
@@ -34,9 +34,12 @@ class AgentToolHandler {
                 "activity": snapshot.activityScore
             ],
             "metadata": [
-                "sleep_hours": sleepData.durationHours,
+                "sleep_hours": sleepData?.durationHours ?? 0,
                 "hrv_average": hrvAverage ?? 0,
-                "activity_level": activityData.intensity.rawValue
+                "activity_level": activityData?.intensity.rawValue ?? "unknown",
+                "has_sleep_data": sleepData != nil,
+                "has_hrv_data": hrvAverage != nil,
+                "has_activity_data": activityData != nil
             ]
         ]
     }
@@ -50,8 +53,8 @@ class AgentToolHandler {
             throw ElevenLabsError.toolExecutionFailed("get_energy_forecast")
         }
         
-        // Get sleep data for forecast
-        let sleepData = try await healthKitManager.fetchLastNightSleep()
+        // Get sleep data for forecast (handle missing data)
+        let sleepData = try? await healthKitManager.fetchLastNightSleep()
         
         // Generate forecast
         let forecast = bodyBatteryPredictor.generateForecast(
@@ -81,7 +84,12 @@ class AgentToolHandler {
     // MARK: - Tool: get_sleep_analysis
     
     func getSleepAnalysis() async throws -> [String: Any] {
-        let sleepData = try await healthKitManager.fetchLastNightSleep()
+        guard let sleepData = try? await healthKitManager.fetchLastNightSleep() else {
+            return [
+                "error": "No hay datos de sueño disponibles",
+                "message": "No se encontraron datos de sueño en HealthKit. Asegúrate de usar un dispositivo con datos de sueño o Apple Watch."
+            ]
+        }
         
         let bedTimeStr = sleepData.bedTime?.formatted(date: .omitted, time: .shortened) ?? "N/A"
         let wakeTimeStr = sleepData.wakeTime?.formatted(date: .omitted, time: .shortened) ?? "N/A"
@@ -130,7 +138,12 @@ class AgentToolHandler {
     // MARK: - Tool: get_activity_summary
     
     func getActivitySummary() async throws -> [String: Any] {
-        let activityData = try await healthKitManager.fetchActivitySummary()
+        guard let activityData = try? await healthKitManager.fetchActivitySummary() else {
+            return [
+                "error": "No hay datos de actividad disponibles",
+                "message": "No se encontraron datos de actividad en HealthKit."
+            ]
+        }
         
         var insights: [String] = []
         

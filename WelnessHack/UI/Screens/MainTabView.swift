@@ -101,26 +101,7 @@ struct MainTabView: View {
     
     @ViewBuilder
     private var dashboardScreen: some View {
-        ScrollView {
-            VStack(spacing: 25) {
-                // Battery Charging Section with Spline
-                BatteryChargingView(
-                    batteryLevel: 0.75,
-                    onBreakRequested: {
-                        // TODO: Navigate to break screen
-                        print("Navigate to break screen")
-                    }
-                )
-                
-                // Weekly Analysis Chart
-                WeeklyAnalysisChartView()
-                
-                // Pie Charts Analysis (Sleep, HRV, Stress)
-                PieChartsAnalysisView()
-            }
-            .padding()
-            .padding(.bottom, 100) // Espacio para tab bar
-        }
+        ChartsScreen()
     }
     
     // MARK: - Base Color Layer
