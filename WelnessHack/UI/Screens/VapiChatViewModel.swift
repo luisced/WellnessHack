@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
-import ElevenLabs
+import ElevenLabsSDK
 
 /// ViewModel para manejar el estado y lógica del chat con ElevenLabs
 @MainActor
