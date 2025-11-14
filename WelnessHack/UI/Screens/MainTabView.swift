@@ -70,11 +70,26 @@ struct MainTabView: View {
     
     @ViewBuilder
     private var dashboardScreen: some View {
-        EnergyDashboardView(
-            bodyBattery: sampleBodyBattery,
-            sleepData: sampleSleepData,
-            activityData: sampleActivityData
-        )
+        ScrollView {
+            VStack(spacing: 25) {
+                // Battery Charging Section with Spline
+                BatteryChargingView(
+                    batteryLevel: 0.75,
+                    onBreakRequested: {
+                        // TODO: Navigate to break screen
+                        print("Navigate to break screen")
+                    }
+                )
+                
+                // Weekly Analysis Chart
+                WeeklyAnalysisChartView()
+                
+                // Pie Charts Analysis (Sleep, HRV, Stress)
+                PieChartsAnalysisView()
+            }
+            .padding()
+            .padding(.bottom, 100) // Espacio para tab bar
+        }
     }
     
     // MARK: - Transition Logic
@@ -167,40 +182,6 @@ struct AnimatedGradientBackground: View {
         .animation(.easeInOut(duration: 0.8), value: selectedTab) // Opción A: 0.8s smooth
     }
 }
-
-// MARK: - Sample Data for Dashboard
-
-private let sampleBodyBattery = BodyBatterySnapshot(
-    score: 75,
-    sleepScore: 80,
-    hrvScore: 70,
-    activityScore: 60,
-    factors: ["Buen descanso", "HRV estable"],
-    recommendations: ["Momento ideal para ejercicio"],
-    sleepDuration: 28800,
-    hrvAverage: 65,
-    activityLevel: "moderate"
-)
-
-private let sampleSleepData = SleepData(
-    duration: 28800,
-    deepSleepDuration: 7200,
-    remSleepDuration: 5400,
-    coreSleepDuration: 14400,
-    awakeDuration: 900,
-    bedTime: Date().addingTimeInterval(-28800),
-    wakeTime: Date(),
-    quality: 80
-)
-
-private let sampleActivityData = ActivityData(
-    steps: 8500,
-    activeCalories: 450,
-    exerciseMinutes: 35,
-    distance: 6500,
-    restingHeartRate: 62,
-    intensity: .moderate
-)
 
 // MARK: - Preview
 
