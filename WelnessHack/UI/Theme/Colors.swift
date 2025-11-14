@@ -71,9 +71,8 @@ extension Color {
     /// Color de información
     static let info = Color.blue
     
-    // MARK: - Gradient Animation Colors (Legacy - No longer used)
+    // MARK: - Gradient Animation Colors
     
-    /*
     /// #365069 - Azul oscuro (80% opacidad)
     static let gradientDarkBlue = Color(hex: "365069").opacity(0.8)
     
@@ -85,7 +84,14 @@ extension Color {
     
     /// #EBEFF5 - Blanco casi transparente (3% opacidad)
     static let gradientWhite = Color(hex: "EBEFF5").opacity(0.03)
-    */
+    
+    // MARK: - VapiChat Gradient Colors
+    
+    /// #87CEEB - Azul cielo para VapiChat
+    static let vapiGradientStart = Color(hex: "87CEEB")
+    
+    /// Blanco para VapiChat gradient end
+    static let vapiGradientEnd = Color.white
     
     // MARK: - Helper: Initialize from Hex
     

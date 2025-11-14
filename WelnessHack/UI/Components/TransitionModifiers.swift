@@ -96,13 +96,4 @@ struct Particle: Identifiable {
     var opacity: Double
 }
 
-// MARK: - Gradient Colors per Screen
-
-extension Color {
-    // VapiChat gradients
-    static let vapiGradientStart = Color(hex: "87CEEB") // Azul cielo
-    static let vapiGradientEnd = Color.white
-    
-    // Dashboard gradient (ya definido en GradientAnimationUtils)
-    // FocusScreen y Calendar ya tienen sus gradientes
-}
+// MARK: - Note: Gradient colors are defined in Colors.swift
