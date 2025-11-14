@@ -137,7 +137,14 @@ struct WeeklyAnalysisChartView: View {
         HStack(spacing: 20) {
             StatItem(
                 title: "Promedio",
-                value: (weeklyData?.map(\.value).reduce(0, +) ?? <#default value#>) / Double(weeklyData?.count ?? 1),
+                value: {
+                    if let data = weeklyData, !data.isEmpty {
+                        let sum = data.map(\.value).reduce(0, +)
+                        return sum / Double(data.count)
+                    } else {
+                        return 65
+                    }
+                }(),
                 unit: "%"
             )
             
