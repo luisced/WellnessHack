@@ -8,16 +8,6 @@ struct ContentView: View {
                     Label("Coach", systemImage: "waveform.circle.fill")
                 }
             
-            CalendarScreen()
-                .tabItem {
-                    Label("Calendar", systemImage: "calendar")
-                }
-            
-            FocusScreen()
-                .tabItem {
-                    Label("Focus", systemImage: "timer")
-                }
-            
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")

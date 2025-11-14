@@ -1,5 +1,5 @@
 import SwiftUI
-import ElevenLabsSDK
+import ElevenLabs
 
 struct VoiceButtonView: View {
     let isConnected: Bool
@@ -15,18 +15,8 @@ struct VoiceButtonView: View {
                 // Outer pulsing ring when agent is speaking
                 if isConnected && agentState == .speaking {
                     Circle()
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4), // #A2D9CE
-                                    Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.2)  // #71ADE1
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 4
-                        )
-                        .frame(width: 190, height: 190)
+                        .stroke(Color.blue.opacity(0.3), lineWidth: 4)
+                        .frame(width: 140, height: 140)
                         .scaleEffect(isPulsing ? 1.2 : 1.0)
                         .opacity(isPulsing ? 0 : 1)
                         .animation(
@@ -36,7 +26,7 @@ struct VoiceButtonView: View {
                         )
                 }
                 
-                // Main button circle with glass effect
+                // Main button circle
                 Circle()
                     .fill(
                         LinearGradient(
@@ -45,35 +35,20 @@ struct VoiceButtonView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 160, height: 160)
-                    .background(
-                        // Glass blur effect
-                        Circle()
-                            .fill(.ultraThinMaterial)
-                            .frame(width: 160, height: 160)
-                    )
-                    .overlay(
-                        // Glass border
-                        Circle()
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.6),
-                                        Color.white.opacity(0.1)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 2
-                            )
-                    )
-                    .shadow(color: Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.3), radius: 15, x: 0, y: 8) // #A2D9CE
-                    .shadow(color: Color.black.opacity(0.1), radius: 30, x: 0, y: 15)
+                    .frame(width: 120, height: 120)
+                    .shadow(color: buttonShadowColor, radius: 20, x: 0, y: 10)
                 
-                // Icon (sin texto)
-                Image(systemName: buttonIcon)
-                    .font(.system(size: 50, weight: .medium))
-                    .foregroundColor(.white)
+                // Icon
+                VStack(spacing: 8) {
+                    Image(systemName: buttonIcon)
+                        .font(.system(size: 40, weight: .medium))
+                        .foregroundColor(.white)
+                    
+                    Text(buttonText)
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white.opacity(0.9))
+                }
             }
         }
         .buttonStyle(PlainButtonStyle())
@@ -90,15 +65,25 @@ struct VoiceButtonView: View {
     // MARK: - Computed Properties
     
     private var buttonGradientColors: [Color] {
-        // Gradiente cristal: verde menta a azul cielo
-        return [
-            Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4), // #A2D9CE
-            Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.3)  // #71ADE1
-        ]
+        if !isConnected {
+            return [Color.blue, Color.purple]
+        } else if isMuted {
+            return [Color.red.opacity(0.7), Color.orange.opacity(0.7)]
+        } else if agentState == .speaking {
+            return [Color.green, Color.blue]
+        } else {
+            return [Color.blue, Color.cyan]
+        }
     }
     
     private var buttonShadowColor: Color {
-        return Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.4) // #71ADE1
+        if !isConnected {
+            return Color.blue.opacity(0.5)
+        } else if agentState == .speaking {
+            return Color.green.opacity(0.5)
+        } else {
+            return Color.blue.opacity(0.5)
+        }
     }
     
     private var buttonIcon: String {
@@ -113,10 +98,16 @@ struct VoiceButtonView: View {
         }
     }
     
-    // Texto removido - ya no se usa
+    private var buttonText: String {
+        if !isConnected {
+            return "Iniciar"
+        } else if agentState == .speaking {
+            return "Hablando..."
+        } else {
+            return "Escuchando"
+        }
+    }
 }
-
-// MARK: - Preview
 
 #Preview {
     VStack(spacing: 40) {
