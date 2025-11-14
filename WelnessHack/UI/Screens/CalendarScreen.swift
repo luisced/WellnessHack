@@ -23,15 +23,6 @@ struct CalendarScreen: View {
     }
 }
 
-// MARK: - Calendar Colors Extension
-
-extension Color {
-    static let calendarDarkBlue = Color(red: 0.11, green: 0.17, blue: 0.23)  // #1C2B3A
-    static let calendarLightBlue = Color(red: 0.27, green: 0.42, blue: 0.55) // #456B8C
-    static let calendarMint = Color(red: 0.64, green: 0.85, blue: 0.81)      // #A2D9CE
-    static let calendarWhite = Color(red: 0.92, green: 0.94, blue: 0.96)     // #EBEFF5
-}
-
 // MARK: - Preview
 
 #Preview {

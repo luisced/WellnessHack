@@ -15,9 +15,37 @@
 		48FE67312EC6763B00C45FB7 /* WelnessHack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WelnessHack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		485F369B2EC713BB006074A7 /* Exceptions for "WelnessHack" folder in "WelnessHack" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/README_Core.md,
+				Data/README_Data.md,
+				Features/Calendar/README.md,
+				Features/DailyFlow/README.md,
+				Features/FocusGuardian/README.md,
+				Features/Nutrition/README.md,
+				Features/Onboarding/README.md,
+				Features/README_Features.md,
+				Features/Reflections/README.md,
+				Features/Retention/README.md,
+				Resources/README_Resources.md,
+				Services/README_Services.md,
+				UI/README_UI.md,
+				UI/README_VapiChat.md,
+				UI/VAPI_CHAT_IMPLEMENTATION.md,
+				Utils/README_Utils.md,
+			);
+			target = 48FE67302EC6763B00C45FB7 /* WelnessHack */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		48FE67332EC6763B00C45FB7 /* WelnessHack */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				485F369B2EC713BB006074A7 /* Exceptions for "WelnessHack" folder in "WelnessHack" target */,
+			);
 			path = WelnessHack;
 			sourceTree = "<group>";
 		};

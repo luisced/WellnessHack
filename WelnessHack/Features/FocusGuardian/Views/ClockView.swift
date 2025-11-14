@@ -60,17 +60,6 @@ struct ClockView: View {
     }
 }
 
-// MARK: - Focus Colors Extension
-
-extension Color {
-    static let focusOrange = Color(red: 1.0, green: 0.42, blue: 0.28) // #FF6B47
-    static let motivationalGreen = Color(red: 0.64, green: 0.85, blue: 0.81) // #A2D9CE
-    static let focusBackground = Color(red: 0.17, green: 0.24, blue: 0.31) // #2C3E50
-    static let focusBlue = Color(red: 0.11, green: 0.17, blue: 0.23) // #1C2B3A
-}
-
-// Color extension already exists in AvatarView.swift
-
 // MARK: - Preview
 
 #Preview {

@@ -5,55 +5,56 @@ struct FocusScreen: View {
     @StateObject private var viewModel = FocusViewModel()
     
     var body: some View {
-        ZStack {
-            // MARK: - Spline 3D Meditation Background
+        // MARK: - Content with Spline Background
+        
+        VStack(spacing: 0) {
+            // MARK: - Title (centrado)
+            titleView
+                .padding(.top, 60)
             
-            if let url = Bundle.main.url(
-                forResource: "meditation_copy",
-                withExtension: "splineswift"
-            ) {
-                SplineView(sceneFileURL: url)
-                    .ignoresSafeArea(.all) // Ignorar todos los bordes
-                    .scaleEffect(2.2) // Círculo aún más grande
-                    .clipped()
-            } else {
-                // Fallback gradient if Spline file not found
-                LinearGradient(
-                    colors: [
-                        Color.focusBackground,
-                        Color.focusBackground.opacity(0.8),
-                        Color.black.opacity(0.9)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea(.all)
-            }
+            // MARK: - Clock/Timer Section (centrado en pantalla)
+            Spacer()
             
-            // Overlay azul para bordes y mejor legibilidad
-            Color.focusBlue.opacity(0.15)
-                .ignoresSafeArea(.all)
+            centerContentView
             
-            // MARK: - Content Overlay
+            Spacer()
             
-            VStack(spacing: 0) {
-                // MARK: - Title (centrado)
-                titleView
-                    .padding(.top, 60)
-                
-                // MARK: - Clock/Timer Section (centrado en pantalla)
-                Spacer()
-                
-                centerContentView
-                
-                Spacer()
-                
-                // MARK: - Motivational Messages (más abajo)
-                MotivationalMessagesView(messages: viewModel.currentMessages)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 120) // Más espacio desde abajo
-            }
+            // MARK: - Motivational Messages (más abajo)
+            MotivationalMessagesView(messages: viewModel.currentMessages)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 120) // Más espacio desde abajo
         }
+        .background(
+            ZStack {
+                // MARK: - Spline 3D Meditation Background
+                
+                if let url = Bundle.main.url(
+                    forResource: "meditation_copy",
+                    withExtension: "splineswift"
+                ) {
+                    SplineView(sceneFileURL: url)
+                        .ignoresSafeArea(.all) // Ignorar todos los bordes
+                        .scaleEffect(2.2) // Círculo aún más grande
+                        .clipped()
+                } else {
+                    // Fallback gradient if Spline file not found
+                    LinearGradient(
+                        colors: [
+                            Color.focusBackground,
+                            Color.focusBackground.opacity(0.8),
+                            Color.black.opacity(0.9)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea(.all)
+                }
+                
+                // Overlay azul para bordes y mejor legibilidad
+                Color.focusBlue.opacity(0.15)
+                    .ignoresSafeArea(.all)
+            }
+        )
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -78,34 +79,38 @@ struct FocusScreen: View {
     // MARK: - Center Content (Clock or Timer)
     
     private var centerContentView: some View {
-        ZStack {
-            // Clock (idle state)
-            if viewModel.focusState == .idle {
-                ClockView(
-                    isActive: true,
-                    onTap: {
-                        viewModel.onClockTapped()
-                    }
-                )
-                .transition(.opacity)
-            }
-            
-            // Timer (active states)
-            if viewModel.focusState != .idle {
-                VStack(spacing: 20) {
+        VStack(spacing: 40) {
+            // Clock or Timer (centered)
+            ZStack {
+                // Clock (idle state)
+                if viewModel.focusState == .idle {
+                    ClockView(
+                        isActive: true,
+                        onTap: {
+                            viewModel.onClockTapped()
+                        }
+                    )
+                    .transition(.opacity)
+                }
+                
+                // Timer (active states) - centrado en la misma posición
+                if viewModel.focusState != .idle {
                     TimerCircleView(
                         timeRemaining: viewModel.timeRemaining,
                         totalTime: viewModel.totalTime,
                         isActive: viewModel.isTimerActive
                     )
                     .transition(.opacity)
-                    
-                    // Timer controls
-                    timerControlsView
                 }
             }
+            .animation(.easeInOut(duration: 0.8), value: viewModel.focusState)
+            
+            // Timer controls (solo cuando el timer está activo)
+            if viewModel.focusState != .idle {
+                timerControlsView
+                    .transition(.opacity)
+            }
         }
-        .animation(.easeInOut(duration: 0.8), value: viewModel.focusState)
     }
     
     // MARK: - Timer Controls
