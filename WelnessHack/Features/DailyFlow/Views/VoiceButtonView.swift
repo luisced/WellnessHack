@@ -1,5 +1,5 @@
 import SwiftUI
-import ElevenLabsSDK
+import ElevenLabs
 
 struct VoiceButtonView: View {
     let isConnected: Bool

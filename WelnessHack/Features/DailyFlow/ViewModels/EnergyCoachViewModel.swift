@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import ElevenLabsSDK
+import ElevenLabs
 import Combine
 
 @MainActor
@@ -12,7 +12,7 @@ class EnergyCoachViewModel: ObservableObject {
     @Published var isMuted = false
     @Published var agentState: AgentState = .listening
     @Published var connectionStatus = "Desconectado"
-    @Published var messages: [Message] = []
+    @Published var messages: [ConversationMessage] = []
     
     @Published var currentBodyBattery: BodyBatterySnapshot?
     @Published var sleepData: SleepData?

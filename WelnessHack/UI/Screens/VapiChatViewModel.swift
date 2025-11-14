@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
-import ElevenLabsSDK
+import ElevenLabs
 
 /// ViewModel para manejar el estado y lógica del chat con ElevenLabs
 @MainActor
@@ -74,7 +74,7 @@ class VapiChatViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    private func updateMessages(from elevenLabsMessages: [Message]) {
+    private func updateMessages(from elevenLabsMessages: [ConversationMessage]) {
         messages = elevenLabsMessages.map { message in
             ChatMessage(
                 id: UUID(),
