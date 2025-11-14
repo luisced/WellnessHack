@@ -18,8 +18,8 @@ struct VoiceButtonView: View {
                         .stroke(
                             LinearGradient(
                                 colors: [
-                                    Color(hex: "A2D9CE").opacity(0.4),
-                                    Color(hex: "71ADE1").opacity(0.2)
+                                    Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4), // #A2D9CE
+                                    Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.2)  // #71ADE1
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -67,7 +67,7 @@ struct VoiceButtonView: View {
                                 lineWidth: 2
                             )
                     )
-                    .shadow(color: Color(hex: "A2D9CE").opacity(0.3), radius: 15, x: 0, y: 8)
+                    .shadow(color: Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.3), radius: 15, x: 0, y: 8) // #A2D9CE
                     .shadow(color: Color.black.opacity(0.1), radius: 30, x: 0, y: 15)
                 
                 // Icon (sin texto)
@@ -92,13 +92,13 @@ struct VoiceButtonView: View {
     private var buttonGradientColors: [Color] {
         // Gradiente cristal: verde menta a azul cielo
         return [
-            Color(hex: "A2D9CE").opacity(0.4),
-            Color(hex: "71ADE1").opacity(0.3)
+            Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4), // #A2D9CE
+            Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.3)  // #71ADE1
         ]
     }
     
     private var buttonShadowColor: Color {
-        return Color(hex: "71ADE1").opacity(0.4)
+        return Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.4) // #71ADE1
     }
     
     private var buttonIcon: String {
