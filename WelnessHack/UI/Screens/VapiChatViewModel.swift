@@ -215,37 +215,40 @@ struct ChatMessage: Identifiable {
     let timestamp: Date
 }
 
-// MARK: - TODO: Backend Implementation Notes
+// MARK: - ElevenLabs Integration Notes
 
 /*
- BACKEND PENDIENTE - Implementaciones necesarias:
+ ✅ INTEGRACIÓN COMPLETA CON ELEVENLABS
  
- 1. VapiClient.swift
-    - Integración con Vapi SDK o API REST
-    - Manejo de WebSocket para streaming de audio
-    - Callbacks: onConnect, onDisconnect, onSpeechStart, onSpeechEnd, onTranscript, onError
-    - Métodos: startSession(), endSession(), sendAudio()
+ El ViewModel ahora usa ElevenLabsClient que proporciona:
  
- 2. VapiConfig.swift
-    - Configuración de llaves API
-    - public static let publicKey = ProcessInfo.env("VAPI_PUBLIC_KEY")
-    - public static let assistantId = ProcessInfo.env("VAPI_ASSISTANT_ID")
+ 1. ✅ Conexión con ElevenLabs Agent API
+    - SDK oficial de ElevenLabs v2.0
+    - Manejo automático de WebRTC para audio
+    - Estados reactivos (@Published)
  
- 3. AudioManager.swift
-    - Captura de audio del micrófono
-    - Detección de amplitud para waveform
-    - Conversión de audio a formato requerido por Vapi
-    - Manejo de AVAudioSession
+ 2. ✅ Client Tools implementadas:
+    - get_current_energy_score
+    - get_energy_forecast
+    - get_sleep_analysis
+    - get_activity_summary
+    - recommend_actions
  
- 4. Permisos en Info.plist:
+ 3. ✅ Contexto de conversación:
+    - Body Battery score actual
+    - Datos de sueño, HRV y actividad
+    - Información temporal (hora del día, día de semana)
+ 
+ 4. ✅ Configuración:
+    - Variables de entorno en .env
+    - ELEVENLABS_API_KEY
+    - ELEVENLABS_AGENT_ID
+ 
+ 5. ✅ Permisos configurados:
     - NSMicrophoneUsageDescription
-    - Descripción: "Necesitamos acceso al micrófono para hablar con el chatbot"
+    - NSHealthShareUsageDescription
+    - NSHealthUpdateUsageDescription
  
- 5. Instalación de SDK:
-    - Agregar dependencia de Vapi iOS SDK
-    - O implementar cliente REST/WebSocket personalizado
- 
- 6. Variables de entorno (.env):
-    - VAPI_PUBLIC_KEY=tu_public_key
-    - VAPI_ASSISTANT_ID=tu_assistant_id
+ Para configurar el agente en ElevenLabs:
+ - Ver docs/ELEVENLABS_SETUP.md
  */
