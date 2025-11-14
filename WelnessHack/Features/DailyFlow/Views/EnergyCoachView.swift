@@ -1,5 +1,5 @@
 import SwiftUI
-import ElevenLabs
+import ElevenLabsSDK
 
 struct EnergyCoachView: View {
     @StateObject private var viewModel = EnergyCoachViewModel()
@@ -156,7 +156,7 @@ struct MessageBubble: View {
             }
             .frame(maxWidth: 280, alignment: message.role == .user ? .trailing : .leading)
             
-            if message.role == .agent { Spacer() }
+            if message.role == .assistant { Spacer() }
         }
     }
 }

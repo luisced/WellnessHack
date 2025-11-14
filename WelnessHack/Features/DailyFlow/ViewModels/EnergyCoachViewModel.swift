@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import ElevenLabs
+import ElevenLabsSDK
 import Combine
 
 @MainActor
