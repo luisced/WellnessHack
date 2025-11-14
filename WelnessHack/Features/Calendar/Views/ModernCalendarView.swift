@@ -26,15 +26,15 @@ struct ModernCalendarView: View {
                 )
             }
             
-            // Botón flotante para añadir eventos
+            // Botón flotante para añadir eventos (a la derecha)
             VStack {
                 Spacer()
                 HStack {
-                    AddEventFloatingButton()
                     Spacer()
+                    AddEventFloatingButton()
                 }
                 .padding(.bottom, 30)
-                .padding(.leading, 20)
+                .padding(.trailing, 20)
             }
         }
     }
@@ -75,26 +75,31 @@ struct ModernCalendarHeader: View {
             
             Spacer()
             
-            // Today number in circle
-            Text(todayNumber)
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .frame(width: 32, height: 32)
-                .background(
-                    Circle()
-                        .fill(Color.calendarDarkBlue.opacity(0.8))
-                )
+            // Today button - Click to jump to today
+            Button(action: {
+                // Navegar al día de hoy
+                viewModel.centerDate = Date()
+                viewModel.selectedDate = Date()
+                viewModel.setupCurrentDays()
+                viewModel.organizeEventsForDays()
+            }) {
+                Text(todayNumber)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Circle()
+                            .fill(Color.calendarDarkBlue.opacity(0.8))
+                    )
+            }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
         .background(
             Rectangle()
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    Rectangle()
-                        .fill(Color.calendarWhite.opacity(0.2))
-                )
+                .fill(Color.calendarMint.opacity(0.3))
+                .background(.ultraThinMaterial)
         )
         .sheet(isPresented: $showMonthPicker) {
             MonthYearPicker(
@@ -157,11 +162,8 @@ struct ModernDaysHeader: View {
         .padding(.vertical, 12)
         .background(
             Rectangle()
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    Rectangle()
-                        .fill(Color.calendarWhite.opacity(0.1))
-                )
+                .fill(Color.calendarMint.opacity(0.3))
+                .background(.ultraThinMaterial)
         )
         .overlay(
             Rectangle()
@@ -262,7 +264,7 @@ struct ModernHourLabels: View {
             // "All-day" row
             Text("All-day")
                 .font(.caption)
-                .foregroundColor(Color.calendarDarkBlue.opacity(0.7))
+                .foregroundColor(.white)
                 .frame(width: 60, height: 40, alignment: .leading)
                 .padding(.leading, 8)
             
@@ -299,7 +301,7 @@ struct ModernHourLabel: View {
             HStack {
                 Text(hourString)
                     .font(.caption)
-                    .foregroundColor(Color.calendarDarkBlue.opacity(0.7))
+                    .foregroundColor(.white)
                     .frame(width: 50, alignment: .leading)
                     .padding(.leading, 8)
                 
@@ -410,8 +412,9 @@ struct ModernEventCard: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(event.source.color.opacity(0.8))
+            RoundedRectangle(cornerRadius: 6)
+                .fill(event.source.color.opacity(0.3))
+                .background(.ultraThinMaterial)
         )
     }
 }

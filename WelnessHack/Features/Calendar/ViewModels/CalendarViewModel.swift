@@ -451,10 +451,10 @@ enum EventSource: String, Codable {
     
     var color: Color {
         switch self {
-        case .system: return .blue
-        case .user: return .green
-        case .healthKit: return .red
-        case .ai: return .purple
+        case .system: return Color.calendarLightBlue      // Azul suave
+        case .user: return Color.calendarMint             // Verde menta
+        case .healthKit: return Color.calendarLightBlue   // Azul suave
+        case .ai: return Color.calendarMint               // Verde menta
         }
     }
     
