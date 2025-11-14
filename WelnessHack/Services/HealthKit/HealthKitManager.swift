@@ -1,5 +1,6 @@
 import Foundation
 import HealthKit
+import Combine
 
 @MainActor
 class HealthKitManager: ObservableObject {
@@ -32,15 +33,14 @@ class HealthKitManager: ObservableObject {
             HKObjectType.quantityType(forIdentifier: .stepCount)!,
             HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
             HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!,
-            HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!
+            HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+            
+            // Workouts
+            HKObjectType.workoutType()
         ]
         
-        let typesToWrite: Set<HKSampleType> = [
-            // We'll write Body Battery as a custom quantity type if needed
-            HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
-        ]
-        
-        try await healthStore.requestAuthorization(toShare: typesToWrite, read: typesToRead)
+        // Don't request write permissions for now - only read
+        try await healthStore.requestAuthorization(toShare: [], read: typesToRead)
         isAuthorized = true
     }
     
@@ -323,6 +323,45 @@ class HealthKitManager: ObservableObject {
             return .sedentary
         }
     }
+    
+    // MARK: - Workout Data
+    
+    func fetchLastWorkout() async throws -> WorkoutData? {
+        let workoutType = HKObjectType.workoutType()
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: Date().addingTimeInterval(-7 * 24 * 3600), // Last 7 days
+            end: Date(),
+            options: .strictStartDate
+        )
+        
+        let samples = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HKWorkout], Error>) in
+            let query = HKSampleQuery(
+                sampleType: workoutType,
+                predicate: predicate,
+                limit: 1,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]
+            ) { _, samples, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                continuation.resume(returning: samples as? [HKWorkout] ?? [])
+            }
+            healthStore.execute(query)
+        }
+        
+        guard let workout = samples.first else { return nil }
+        
+        return WorkoutData(
+            activityType: workout.workoutActivityType,
+            startDate: workout.startDate,
+            endDate: workout.endDate,
+            duration: workout.duration,
+            totalEnergyBurned: workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()),
+            totalDistance: workout.totalDistance?.doubleValue(for: .meter())
+        )
+    }
 }
 
 // MARK: - Data Models
@@ -367,6 +406,120 @@ enum ActivityIntensity: String {
 }
 
 // MARK: - Errors
+
+struct WorkoutData {
+    let activityType: HKWorkoutActivityType
+    let startDate: Date
+    let endDate: Date
+    let duration: TimeInterval
+    let totalEnergyBurned: Double?
+    let totalDistance: Double?
+    
+    var activityName: String {
+        switch activityType {
+        case .running:
+            return "Correr"
+        case .walking:
+            return "Caminar"
+        case .cycling:
+            return "Ciclismo"
+        case .swimming:
+            return "Natación"
+        case .yoga:
+            return "Yoga"
+        case .functionalStrengthTraining:
+            return "Fuerza"
+        case .traditionalStrengthTraining:
+            return "Pesas"
+        case .hiking:
+            return "Senderismo"
+        case .dance:
+            return "Baile"
+        case .soccer:
+            return "Fútbol"
+        case .basketball:
+            return "Baloncesto"
+        case .tennis:
+            return "Tenis"
+        case .golf:
+            return "Golf"
+        case .boxing:
+            return "Boxeo"
+        case .martialArts:
+            return "Artes Marciales"
+        case .crossTraining:
+            return "Cross Training"
+        case .elliptical:
+            return "Elíptica"
+        case .rowing:
+            return "Remo"
+        case .stairs:
+            return "Escaleras"
+        case .stepTraining:
+            return "Step"
+        case .pilates:
+            return "Pilates"
+        case .climbing:
+            return "Escalada"
+        default:
+            return "Ejercicio"
+        }
+    }
+    
+    var activityIcon: String {
+        switch activityType {
+        case .running:
+            return "figure.run"
+        case .walking:
+            return "figure.walk"
+        case .cycling:
+            return "bicycle"
+        case .swimming:
+            return "figure.pool.swim"
+        case .yoga:
+            return "figure.mind.and.body"
+        case .functionalStrengthTraining, .traditionalStrengthTraining:
+            return "dumbbell.fill"
+        case .hiking:
+            return "figure.hiking"
+        case .dance:
+            return "figure.dance"
+        case .soccer:
+            return "soccerball"
+        case .basketball:
+            return "basketball.fill"
+        case .tennis:
+            return "tennisball.fill"
+        case .golf:
+            return "figure.golf"
+        case .boxing, .martialArts:
+            return "figure.boxing"
+        case .crossTraining:
+            return "figure.cross.training"
+        case .elliptical:
+            return "figure.elliptical"
+        case .rowing:
+            return "figure.rower"
+        case .stairs, .stepTraining:
+            return "figure.stairs"
+        case .pilates:
+            return "figure.pilates"
+        case .climbing:
+            return "figure.climbing"
+        default:
+            return "figure.mixed.cardio"
+        }
+    }
+    
+    var durationMinutes: Int {
+        Int(duration / 60)
+    }
+    
+    var distanceKm: Double? {
+        guard let distance = totalDistance else { return nil }
+        return distance / 1000
+    }
+}
 
 enum HealthKitError: Error, LocalizedError {
     case notAvailable
