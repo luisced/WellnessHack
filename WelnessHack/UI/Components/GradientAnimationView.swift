@@ -173,18 +173,35 @@ struct GradientNavigationView: View {
     @ViewBuilder
     private var graficasContent: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 25) {
                 Text("Gráficas de Energía")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .padding(.top, 20)
                 
+                // Battery Charging Section with Spline
+                BatteryChargingView(
+                    batteryLevel: 0.75,
+                    onBreakRequested: {
+                        // TODO: Navigate to break screen
+                        print("Navigate to break screen")
+                    }
+                )
+                
+                // Weekly Analysis Chart
+                WeeklyAnalysisChartView()
+                
+                // Pie Charts Analysis
+                PieChartsAnalysisView()
+                
+                // Original Energy Dashboard (scaled down)
                 EnergyDashboardView(
                     bodyBattery: sampleBodyBattery,
                     sleepData: sampleSleepData,
                     activityData: sampleActivityData
                 )
+                .scaleEffect(0.8)
                 
                 Button("Ir a Calendario") {
                     transitionManager.navigateTo(.calendar)

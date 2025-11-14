@@ -4,6 +4,7 @@ import SwiftUI
 
 struct GradientTransitionDemo: View {
     @State private var showCalendar = false
+    @State private var showBreak = false
     @State private var animateGradient = false
     
     var body: some View {
@@ -16,32 +17,16 @@ struct GradientTransitionDemo: View {
             .ignoresSafeArea(.all)
             
             // Contenido de la pantalla actual
-            VStack(spacing: 30) {
-                Text(showCalendar ? "Calendario" : "Gráficas")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                if showCalendar {
-                    calendarContent
-                } else {
-                    graficasContent
-                }
-                
-                // Botón de transición
-                Button(action: toggleScreen) {
-                    HStack {
-                        Image(systemName: showCalendar ? "chart.bar.fill" : "calendar")
-                        Text(showCalendar ? "Ver Gráficas" : "Ver Calendario")
+            if showBreak {
+                BreakScreen(onBackToMain: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showBreak = false
                     }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.white.opacity(0.2))
-                    .cornerRadius(12)
-                }
+                })
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            } else {
+                mainContent
             }
-            .padding()
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 1.5)) {
@@ -55,6 +40,35 @@ struct GradientTransitionDemo: View {
         }
     }
     
+    private var mainContent: some View {
+        VStack(spacing: 30) {
+            Text(showCalendar ? "Calendario" : "Gráficas")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            if showCalendar {
+                calendarContent
+            } else {
+                graficasContent
+            }
+            
+            // Botón de transición
+            Button(action: toggleScreen) {
+                HStack {
+                    Image(systemName: showCalendar ? "chart.bar.fill" : "calendar")
+                    Text(showCalendar ? "Ver Gráficas" : "Ver Calendario")
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.white.opacity(0.2))
+                .cornerRadius(12)
+            }
+        }
+        .padding()
+    }
+    
     private func toggleScreen() {
         withAnimation(.easeInOut(duration: 0.8)) {
             showCalendar.toggle()
@@ -63,11 +77,28 @@ struct GradientTransitionDemo: View {
     
     @ViewBuilder
     private var graficasContent: some View {
-        EnergyDashboardView(
-            bodyBattery: sampleBodyBattery,
-            sleepData: sampleSleepData,
-            activityData: sampleActivityData
-        )
+        ScrollView {
+            VStack(spacing: 20) {
+                // Battery Charging Section
+                BatteryChargingView(
+                    batteryLevel: 0.75,
+                    onBreakRequested: {
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            showBreak = true
+                        }
+                    }
+                )
+                .scaleEffect(0.9)
+                
+                // Weekly Analysis Chart
+                WeeklyAnalysisChartView()
+                    .scaleEffect(0.9)
+                
+                // Pie Charts Analysis
+                PieChartsAnalysisView()
+                    .scaleEffect(0.9)
+            }
+        }
         .scaleEffect(0.85)
     }
     
