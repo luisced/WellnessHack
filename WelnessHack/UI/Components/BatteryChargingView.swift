@@ -43,7 +43,7 @@ struct BatteryChargingView: View {
         ZStack {
             // Spline background for battery charging animation
             if let url = Bundle.main.url(
-                forResource: "battery_charging_animation",
+                forResource: "battery_charging_animation_copy",
                 withExtension: "splineswift"
             ) {
                 SplineView(sceneFileURL: url)
