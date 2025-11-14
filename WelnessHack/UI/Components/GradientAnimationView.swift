@@ -1,7 +1,8 @@
 import SwiftUI
 
-// MARK: - Gradient Animation Utility Functions
+// MARK: - Gradient Animation Utility Functions (Legacy - No longer used for transitions)
 
+/*
 struct GradientAnimationUtils {
     
     /// Crea un gradiente animado que transiciona entre dos estados
@@ -53,8 +54,9 @@ struct GradientAnimationUtils {
         .animation(.easeInOut(duration: animationDuration), value: isReversed)
     }
 }
+*/
 
-// MARK: - Gradient Animation View
+// MARK: - Gradient Animation View (Now used as Charts Screen Background)
 
 struct GradientAnimationView: View {
     let isReversed: Bool
@@ -62,36 +64,24 @@ struct GradientAnimationView: View {
     
     var body: some View {
         LinearGradient(
-            gradient: Gradient(colors: gradientColors),
+            gradient: Gradient(colors: [
+                Color.calendarDarkBlue,     // 1C2B3A - Azul fuerte (inferior izquierda)
+                Color.calendarLightBlue,    // 456B8C - Azul leve (transición suave)
+                Color.calendarMint,         // A2D9CE - Menta (centro expandido)
+                Color.calendarWhite         // EBEFF5 - Blanco (superior derecha)
+            ]),
             startPoint: .bottomLeading,
             endPoint: .topTrailing
         )
-        .animation(
-            .easeInOut(duration: animationDuration),
-            value: isReversed
-        )
         .ignoresSafeArea(.all)
-    }
-    
-    private var gradientColors: [Color] {
-        let baseColors = [
-            Color.gradientDarkBlue,   // #365069 al 80%
-            Color.gradientMediumBlue, // #6C949C al 70%
-            Color.gradientMint,       // #A2D9CE al 35%
-            Color.gradientWhite       // #EBEFF5 al 3%
-        ]
-        
-        return isReversed ? baseColors.reversed() : baseColors
     }
 }
 
-// MARK: - Animated Screen Container
+// MARK: - Animated Screen Container (Now used as Charts Screen Container)
 
 struct AnimatedScreenContainer<Content: View>: View {
     let isReversed: Bool
     let content: Content
-    
-    @State private var animateGradient = false
     
     init(isReversed: Bool, @ViewBuilder content: () -> Content) {
         self.isReversed = isReversed
@@ -100,24 +90,13 @@ struct AnimatedScreenContainer<Content: View>: View {
     
     var body: some View {
         ZStack {
-            GradientAnimationView(isReversed: animateGradient ? isReversed : !isReversed)
-            
+            GradientAnimationView(isReversed: false)
             content
-        }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 1.5)) {
-                animateGradient = true
-            }
-        }
-        .onChange(of: isReversed) { _, newValue in
-            withAnimation(.easeInOut(duration: 1.5)) {
-                animateGradient = newValue
-            }
         }
     }
 }
 
-// MARK: - Screen Transition Manager
+// MARK: - Screen Transition Manager (Now only for Charts Screen)
 
 class ScreenTransitionManager: ObservableObject {
     @Published var currentScreen: ScreenType = .graficas
@@ -174,12 +153,6 @@ struct GradientNavigationView: View {
     private var graficasContent: some View {
         ScrollView {
             VStack(spacing: 25) {
-                Text("Gráficas de Energía")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.top, 20)
-                
                 // Battery Charging Section with Spline
                 BatteryChargingView(
                     batteryLevel: 0.75,
@@ -192,25 +165,8 @@ struct GradientNavigationView: View {
                 // Weekly Analysis Chart
                 WeeklyAnalysisChartView()
                 
-                // Pie Charts Analysis
+                // Pie Charts Analysis (Sleep, HRV, Stress)
                 PieChartsAnalysisView()
-                
-                // Original Energy Dashboard (scaled down)
-                EnergyDashboardView(
-                    bodyBattery: sampleBodyBattery,
-                    sleepData: sampleSleepData,
-                    activityData: sampleActivityData
-                )
-                .scaleEffect(0.8)
-                
-                Button("Ir a Calendario") {
-                    transitionManager.navigateTo(.calendar)
-                }
-                .padding()
-                .background(Color.white.opacity(0.2))
-                .foregroundColor(.white)
-                .cornerRadius(12)
-                .padding(.top, 20)
             }
             .padding()
         }
