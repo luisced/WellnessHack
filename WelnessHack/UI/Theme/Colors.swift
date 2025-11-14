@@ -71,6 +71,20 @@ extension Color {
     /// Color de información
     static let info = Color.blue
     
+    // MARK: - Gradient Animation Colors
+    
+    /// #365069 - Azul oscuro (80% opacidad)
+    static let gradientDarkBlue = Color(hex: "365069").opacity(0.8)
+    
+    /// #6C949C - Azul grisáceo (70% opacidad)
+    static let gradientMediumBlue = Color(hex: "6C949C").opacity(0.7)
+    
+    /// #A2D9CE - Menta suave (35% opacidad)
+    static let gradientMint = Color(hex: "A2D9CE").opacity(0.35)
+    
+    /// #EBEFF5 - Blanco casi transparente (3% opacidad)
+    static let gradientWhite = Color(hex: "EBEFF5").opacity(0.03)
+    
     // MARK: - Helper: Initialize from Hex
     
     init(hex: String) {
