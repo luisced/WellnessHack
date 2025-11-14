@@ -68,24 +68,11 @@ struct FocusScreen: View {
     // MARK: - Title View
     
     private var titleView: some View {
-        VStack(spacing: 20) {
-            // Título siempre en una línea
-            Text("TAKE A BREAK")
-                .font(.system(size: viewModel.focusState == .idle ? 36 : 28, weight: .bold, design: .default))
-                .foregroundColor(Color.focusBlue)
-                .tracking(3)
-            
-            // Small clock when in timer mode (justo debajo del título)
-            if viewModel.focusState != .idle {
-                ClockView(isActive: false, onTap: {})
-                    .scaleEffect(0.35)
-                    .frame(width: 56, height: 56)
-                    .transition(.asymmetric(
-                        insertion: .scale.combined(with: .opacity),
-                        removal: .scale.combined(with: .opacity)
-                    ))
-            }
-        }
+        // Título siempre en una línea (sin reloj pequeño)
+        Text("TAKE A BREAK")
+            .font(.system(size: viewModel.focusState == .idle ? 36 : 28, weight: .bold, design: .default))
+            .foregroundColor(Color.focusBlue)
+            .tracking(3)
     }
     
     // MARK: - Center Content (Clock or Timer)
@@ -100,10 +87,7 @@ struct FocusScreen: View {
                         viewModel.onClockTapped()
                     }
                 )
-                .transition(.asymmetric(
-                    insertion: .scale.combined(with: .opacity),
-                    removal: .move(edge: .top).combined(with: .scale(scale: 0.4))
-                ))
+                .transition(.opacity)
             }
             
             // Timer (active states)
@@ -114,10 +98,7 @@ struct FocusScreen: View {
                         totalTime: viewModel.totalTime,
                         isActive: viewModel.isTimerActive
                     )
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .bottom).combined(with: .scale(scale: 1.2)),
-                        removal: .scale.combined(with: .opacity)
-                    ))
+                    .transition(.opacity)
                     
                     // Timer controls
                     timerControlsView
@@ -137,7 +118,7 @@ struct FocusScreen: View {
             }) {
                 Image(systemName: viewModel.isTimerActive ? "pause.circle.fill" : "play.circle.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(.focusOrange)
+                    .foregroundColor(.focusBlue)
             }
             .buttonStyle(PlainButtonStyle())
             

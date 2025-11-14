@@ -34,11 +34,25 @@ class CalendarViewModel: ObservableObject {
     @Published var hasCalendarAccess: Bool = false
     
     /// Vista actual del calendario (mes, semana, día)
-    @Published var calendarViewMode: CalendarViewMode = .month
+    @Published var calendarViewMode: CalendarViewMode = .week
+    
+    /// Días mostrados actualmente (3 días)
+    @Published var currentDisplayDays: [Date] = []
+    
+    /// Fecha central de la vista de 3 días
+    @Published var centerDate: Date = Date()
+    
+    /// Rango de horas visible (ajustable por el usuario)
+    @Published var startHour: Int = 6
+    @Published var endHour: Int = 22
+    
+    /// Eventos organizados por día y hora para la vista semanal
+    @Published var weeklyEvents: [Date: [Int: [CalendarEvent]]] = [:]
     
     // MARK: - Private Properties
     
     private var cancellables = Set<AnyCancellable>()
+    private let calendar = Calendar.current
     
     // TODO: BACKEND - Agregar EventKit manager cuando se implemente
     // private var eventStore: EKEventStore?
@@ -53,6 +67,7 @@ class CalendarViewModel: ObservableObject {
     
     init() {
         setupInitialState()
+        setupCurrentDays()
         loadMockEvents()
     }
     
@@ -105,6 +120,36 @@ class CalendarViewModel: ObservableObject {
     /// Cambia el modo de vista del calendario
     func changeViewMode(_ mode: CalendarViewMode) {
         calendarViewMode = mode
+    }
+    
+    /// Navega 3 días hacia atrás
+    func goToPreviousDays() {
+        if let newCenterDate = calendar.date(byAdding: .day, value: -3, to: centerDate) {
+            centerDate = newCenterDate
+            setupCurrentDays()
+            organizeEventsForDays()
+        }
+    }
+    
+    /// Navega 3 días hacia adelante
+    func goToNextDays() {
+        if let newCenterDate = calendar.date(byAdding: .day, value: 3, to: centerDate) {
+            centerDate = newCenterDate
+            setupCurrentDays()
+            organizeEventsForDays()
+        }
+    }
+    
+    /// Ajusta el rango de horas visible
+    func adjustHourRange(startHour: Int, endHour: Int) {
+        self.startHour = max(0, min(startHour, 23))
+        self.endHour = max(self.startHour + 1, min(endHour, 23))
+    }
+    
+    /// Obtiene eventos para un día y hora específicos
+    func getEvents(for date: Date, hour: Int) -> [CalendarEvent] {
+        let dayKey = calendar.startOfDay(for: date)
+        return weeklyEvents[dayKey]?[hour] ?? []
     }
     
     /// Agrega un nuevo evento
@@ -174,49 +219,118 @@ class CalendarViewModel: ObservableObject {
         selectedDate = Date()
         currentMonth = Date()
         hasCalendarAccess = false
-        calendarViewMode = .month
+        calendarViewMode = .week
+    }
+    
+    func setupCurrentDays() {
+        // Generar 3 días: día anterior, día central, día siguiente
+        currentDisplayDays = (-1...1).compactMap { offset in
+            calendar.date(byAdding: .day, value: offset, to: centerDate)
+        }
+    }
+    
+    func organizeEventsForDays() {
+        weeklyEvents.removeAll()
+        
+        for event in monthEvents {
+            let eventDay = calendar.startOfDay(for: event.startDate)
+            let eventHour = calendar.component(.hour, from: event.startDate)
+            
+            // Solo incluir eventos de los 3 días actuales
+            if currentDisplayDays.contains(where: { calendar.isDate($0, inSameDayAs: eventDay) }) {
+                if weeklyEvents[eventDay] == nil {
+                    weeklyEvents[eventDay] = [:]
+                }
+                
+                if weeklyEvents[eventDay]![eventHour] == nil {
+                    weeklyEvents[eventDay]![eventHour] = []
+                }
+                
+                weeklyEvents[eventDay]![eventHour]!.append(event)
+            }
+        }
     }
     
     private func loadMockEvents() {
-        // MOCK: Eventos de ejemplo para testing UI
+        // MOCK: Eventos de ejemplo distribuidos en la semana para testing UI
         let calendar = Calendar.current
         let today = Date()
         
-        let mockEvents = [
-            CalendarEvent(
-                id: UUID(),
-                title: "Morning Workout",
-                startDate: calendar.date(byAdding: .hour, value: 7, to: calendar.startOfDay(for: today))!,
-                endDate: calendar.date(byAdding: .hour, value: 8, to: calendar.startOfDay(for: today))!,
-                isAllDay: false,
-                location: "Gym",
-                notes: "Cardio + weights",
-                source: .healthKit
-            ),
-            CalendarEvent(
-                id: UUID(),
-                title: "Team Meeting",
-                startDate: calendar.date(byAdding: .hour, value: 10, to: calendar.startOfDay(for: today))!,
-                endDate: calendar.date(byAdding: .hour, value: 11, to: calendar.startOfDay(for: today))!,
-                isAllDay: false,
-                location: "Conference Room A",
-                notes: "Weekly sync",
-                source: .system
-            ),
-            CalendarEvent(
+        var mockEvents: [CalendarEvent] = []
+        
+        // Eventos para diferentes días de la semana
+        for dayOffset in -2...4 { // Semana completa
+            guard let day = calendar.date(byAdding: .day, value: dayOffset, to: today) else { continue }
+            
+            // Eventos matutinos
+            if dayOffset != 0 { // No en domingo
+                mockEvents.append(CalendarEvent(
+                    id: UUID(),
+                    title: "Morning Workout",
+                    startDate: calendar.date(byAdding: .hour, value: 7, to: calendar.startOfDay(for: day))!,
+                    endDate: calendar.date(byAdding: .hour, value: 8, to: calendar.startOfDay(for: day))!,
+                    isAllDay: false,
+                    location: "Gym",
+                    notes: "Cardio + weights",
+                    source: .healthKit
+                ))
+            }
+            
+            // Eventos de trabajo (lunes a viernes)
+            if dayOffset >= -1 && dayOffset <= 3 {
+                mockEvents.append(CalendarEvent(
+                    id: UUID(),
+                    title: "Team Meeting",
+                    startDate: calendar.date(byAdding: .hour, value: 10, to: calendar.startOfDay(for: day))!,
+                    endDate: calendar.date(byAdding: .hour, value: 11, to: calendar.startOfDay(for: day))!,
+                    isAllDay: false,
+                    location: "Conference Room A",
+                    notes: "Weekly sync",
+                    source: .system
+                ))
+                
+                mockEvents.append(CalendarEvent(
+                    id: UUID(),
+                    title: "Focus Time",
+                    startDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: day))!,
+                    endDate: calendar.date(byAdding: .hour, value: 16, to: calendar.startOfDay(for: day))!,
+                    isAllDay: false,
+                    location: nil,
+                    notes: "Deep work session",
+                    source: .ai
+                ))
+            }
+            
+            // Eventos de almuerzo
+            mockEvents.append(CalendarEvent(
                 id: UUID(),
                 title: "Lunch Break",
-                startDate: calendar.date(byAdding: .hour, value: 13, to: calendar.startOfDay(for: today))!,
-                endDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: today))!,
+                startDate: calendar.date(byAdding: .hour, value: 13, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: day))!,
                 isAllDay: false,
-                location: nil,
+                location: dayOffset == 0 ? "Restaurant" : nil,
                 notes: "Mindful eating",
                 source: .user
-            )
-        ]
+            ))
+            
+            // Eventos de fin de semana
+            if dayOffset == -2 || dayOffset == 4 {
+                mockEvents.append(CalendarEvent(
+                    id: UUID(),
+                    title: "Family Time",
+                    startDate: calendar.date(byAdding: .hour, value: 16, to: calendar.startOfDay(for: day))!,
+                    endDate: calendar.date(byAdding: .hour, value: 18, to: calendar.startOfDay(for: day))!,
+                    isAllDay: false,
+                    location: "Home",
+                    notes: "Quality time",
+                    source: .user
+                ))
+            }
+        }
         
-        todayEvents = mockEvents
+        todayEvents = mockEvents.filter { calendar.isDate($0.startDate, inSameDayAs: today) }
         monthEvents = mockEvents
+        organizeEventsForDays()
     }
     
     private func loadEventsForDate(_ date: Date) {

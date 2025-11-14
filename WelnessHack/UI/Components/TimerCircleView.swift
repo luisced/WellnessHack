@@ -21,7 +21,7 @@ struct TimerCircleView: View {
         ZStack {
             // Background circle
             Circle()
-                .stroke(Color.focusOrange.opacity(0.2), lineWidth: 8)
+                .stroke(Color.focusBlue.opacity(0.2), lineWidth: 8)
                 .frame(width: 200, height: 200)
             
             // Progress circle
@@ -29,7 +29,7 @@ struct TimerCircleView: View {
                 .trim(from: 0, to: progress)
                 .stroke(
                     LinearGradient(
-                        colors: [Color.focusOrange, Color.focusOrange.opacity(0.7)],
+                        colors: [Color.focusBlue, Color.focusBlue.opacity(0.7)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
@@ -58,7 +58,7 @@ struct TimerCircleView: View {
                         )
                         .frame(width: 160, height: 160)
                 )
-                .shadow(color: Color.focusOrange.opacity(0.3), radius: 15, x: 0, y: 8)
+                .shadow(color: Color.focusBlue.opacity(0.3), radius: 15, x: 0, y: 8)
             
             // Time display
             VStack(spacing: 4) {

@@ -4,44 +4,22 @@ struct CalendarScreen: View {
     @StateObject private var viewModel = CalendarViewModel()
     
     var body: some View {
-        ZStack {
-            // MARK: - Gradient Background
-            
-            LinearGradient(
-                gradient: Gradient(stops: [
-                    .init(color: Color.calendarDarkBlue, location: 0.0),    // 1C2B3A - Azul fuerte (arriba)
-                    .init(color: Color.calendarLightBlue, location: 0.3),   // 456B8C - Azul leve (medio-superior)
-                    .init(color: Color.calendarMint, location: 0.7),        // A2D9CE - Menta (medio-inferior)
-                    .init(color: Color.calendarWhite, location: 1.0)        // EBEFF5 - Blanco (abajo)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
+        // MARK: - Calendar Content with Gradient Background
+        
+        ModernCalendarView(viewModel: viewModel)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.calendarDarkBlue,     // 1C2B3A - Azul fuerte (inferior izquierda)
+                        Color.calendarLightBlue,    // 456B8C - Azul leve (transición suave)
+                        Color.calendarMint,         // A2D9CE - Menta (centro expandido)
+                        Color.calendarWhite         // EBEFF5 - Blanco (superior derecha)
+                    ]),
+                    startPoint: .bottomLeading,
+                    endPoint: .topTrailing
+                )
+                .ignoresSafeArea(.all)
             )
-            .ignoresSafeArea(.all)
-            
-            // MARK: - Content Overlay
-            
-            VStack(spacing: 0) {
-                // TODO: FRONTEND - Agregar contenido del calendario
-                // - Header con mes/año
-                // - Vista de calendario
-                // - Lista de eventos del día
-                // - Botón para agregar evento
-                
-                Spacer()
-                
-                Text("Calendar View")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text("Coming Soon")
-                    .font(.title2)
-                    .foregroundColor(.white.opacity(0.8))
-                
-                Spacer()
-            }
-        }
     }
 }
 
