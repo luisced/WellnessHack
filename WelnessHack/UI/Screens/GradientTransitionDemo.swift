@@ -8,10 +8,10 @@ struct GradientTransitionDemo: View {
     
     var body: some View {
         ZStack {
-            // Gradiente animado de fondo
+            // Gradiente animado de fondo (Opción A: 0.8s smooth)
             GradientAnimationUtils.createAnimatedGradient(
                 isReversed: animateGradient,
-                animationDuration: 1.5
+                animationDuration: 0.8
             )
             .ignoresSafeArea(.all)
             
@@ -44,12 +44,12 @@ struct GradientTransitionDemo: View {
             .padding()
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 1.5)) {
+            withAnimation(.easeInOut(duration: 0.8)) { // Opción A: 0.8s smooth
                 animateGradient = showCalendar
             }
         }
         .onChange(of: showCalendar) { _, newValue in
-            withAnimation(.easeInOut(duration: 1.5)) {
+            withAnimation(.easeInOut(duration: 0.8)) { // Opción A: 0.8s smooth
                 animateGradient = newValue
             }
         }

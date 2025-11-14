@@ -62,7 +62,7 @@ struct VapiChatScreen: View {
                         }
                     }
                 )
-                .padding(.bottom, 80)
+                .padding(.bottom, 140) // Aumentado para no estar tapado por tab bar
             }
         }
         .alert("Error", isPresented: $viewModel.showError) {

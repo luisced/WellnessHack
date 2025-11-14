@@ -33,7 +33,7 @@ struct ModernCalendarView: View {
                     Spacer()
                     AddEventFloatingButton()
                 }
-                .padding(.bottom, 30)
+                .padding(.bottom, 100) // Aumentado para no estar tapado por tab bar
                 .padding(.trailing, 20)
             }
         }
@@ -97,9 +97,14 @@ struct ModernCalendarHeader: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
         .background(
+            // Mismo estilo que el tab bar inferior
             Rectangle()
                 .fill(Color.calendarMint.opacity(0.3))
-                .background(.ultraThinMaterial)
+                .background(
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .opacity(0.5)
+                )
         )
         .sheet(isPresented: $showMonthPicker) {
             MonthYearPicker(
@@ -161,9 +166,14 @@ struct ModernDaysHeader: View {
         }
         .padding(.vertical, 12)
         .background(
+            // Mismo estilo que el tab bar inferior
             Rectangle()
                 .fill(Color.calendarMint.opacity(0.3))
-                .background(.ultraThinMaterial)
+                .background(
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .opacity(0.5)
+                )
         )
         .overlay(
             Rectangle()
@@ -404,7 +414,7 @@ struct ModernEventCard: View {
             Text(event.title)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundColor(.white)
+                .foregroundColor(Color.calendarDarkBlue)
                 .lineLimit(1)
             
             Spacer()
@@ -412,9 +422,8 @@ struct ModernEventCard: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(event.source.color.opacity(0.3))
-                .background(.ultraThinMaterial)
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.ultraThinMaterial)
         )
     }
 }

@@ -2,6 +2,15 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
+        // Usando el nuevo MainTabView con navegación personalizada
+        MainTabView()
+    }
+}
+
+// MARK: - Legacy TabView (commented out for reference)
+/*
+struct ContentView_Legacy: View {
+    var body: some View {
         TabView {
             EnergyCoachView()
                 .tabItem {
@@ -25,6 +34,7 @@ struct ContentView: View {
         }
     }
 }
+*/
 
 // MARK: - Settings View
 

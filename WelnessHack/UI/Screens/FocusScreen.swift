@@ -15,7 +15,7 @@ struct FocusScreen: View {
             VStack(spacing: 0) {
                 // MARK: - Title (centrado y estático)
                 titleView
-                    .padding(.top, 100)
+                    .padding(.top, 140)
                 
                 // MARK: - Clock/Timer Section (centrado en pantalla)
                 Spacer()
@@ -27,7 +27,7 @@ struct FocusScreen: View {
                 // MARK: - Motivational Messages (más abajo)
                 MotivationalMessagesView(messages: viewModel.currentMessages)
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 120)
+                    .padding(.bottom, 170) // Aumentado para no estar tapado por tab bar
             }
         }
         .ignoresSafeArea(.all)
@@ -82,7 +82,7 @@ struct FocusScreen: View {
         // Título estático (sin cambios de tamaño)
         Text("TAKE A BREAK")
             .font(.system(size: 36, weight: .bold, design: .default))
-            .foregroundColor(Color.focusBlue)
+            .foregroundColor(Color.calendarMint.opacity(0.7))
             .tracking(3)
     }
     
@@ -147,7 +147,7 @@ struct FocusScreen: View {
             }) {
                 Image(systemName: viewModel.isTimerActive ? "pause.circle.fill" : "play.circle.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(.focusBlue)
+                    .foregroundColor(.calendarMint)
             }
             .buttonStyle(PlainButtonStyle())
             

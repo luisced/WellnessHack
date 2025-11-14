@@ -7,9 +7,9 @@ struct GradientAnimationUtils {
     /// Crea un gradiente animado que transiciona entre dos estados
     /// - Parameters:
     ///   - isReversed: Si true, invierte el orden de los colores
-    ///   - animationDuration: Duración de la animación en segundos
+    ///   - animationDuration: Duración de la animación en segundos (Opción A: 0.8s por defecto)
     /// - Returns: LinearGradient animado
-    static func createAnimatedGradient(isReversed: Bool, animationDuration: Double = 1.5) -> some View {
+    static func createAnimatedGradient(isReversed: Bool, animationDuration: Double = 0.8) -> some View {
         LinearGradient(
             gradient: Gradient(colors: getGradientColors(isReversed: isReversed)),
             startPoint: .bottomLeading,
@@ -58,7 +58,7 @@ struct GradientAnimationUtils {
 
 struct GradientAnimationView: View {
     let isReversed: Bool
-    let animationDuration: Double = 1.5
+    let animationDuration: Double = 0.8 // Opción A: Apple-style smooth
     
     var body: some View {
         LinearGradient(
@@ -105,12 +105,12 @@ struct AnimatedScreenContainer<Content: View>: View {
             content
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 1.5)) {
+            withAnimation(.easeInOut(duration: 0.8)) { // Opción A: 0.8s smooth
                 animateGradient = true
             }
         }
         .onChange(of: isReversed) { _, newValue in
-            withAnimation(.easeInOut(duration: 1.5)) {
+            withAnimation(.easeInOut(duration: 0.8)) { // Opción A: 0.8s smooth
                 animateGradient = newValue
             }
         }
