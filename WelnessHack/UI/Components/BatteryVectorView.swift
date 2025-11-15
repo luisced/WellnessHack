@@ -81,17 +81,6 @@ struct BatteryVectorView: View {
             batteryCap
                 .offset(y: -125)
             
-            // Percentage text
-            VStack {
-                Spacer()
-                Text("\(Int(batteryLevel * 100))%")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                Spacer()
-            }
-            .frame(height: 240)
-            
             // Charging indicator (if level is increasing)
             if batteryLevel < 1.0 {
                 chargingIndicator

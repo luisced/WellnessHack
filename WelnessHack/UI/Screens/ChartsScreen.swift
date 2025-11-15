@@ -47,16 +47,6 @@ struct ChartsScreen: View {
                                 LastWorkoutCardView(workout: workout)
                             }
                             
-                            // Battery Charging Section with real data
-                        BatteryChargingView(
-                                batteryLevel: viewModel.batteryLevel,
-                            onBreakRequested: {
-                                withAnimation(.easeInOut(duration: 0.5)) {
-                                    showBreak = true
-                                }
-                            }
-                        )
-                        
                             // Weekly Analysis Chart with real data
                             WeeklyAnalysisChartView(
                                 weeklyData: viewModel.weeklyDataPoints
