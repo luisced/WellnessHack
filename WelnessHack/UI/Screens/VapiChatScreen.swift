@@ -18,7 +18,7 @@ struct VapiChatScreen: View {
                 withExtension: "splineswift"
             ) {
                 SplineView(sceneFileURL: url)
-                    .ignoresSafeArea()
+                    .ignoresSafeArea(.all, edges: .top)
             } else {
                 // Fallback gradient if Spline file not found
                 LinearGradient(
@@ -30,7 +30,7 @@ struct VapiChatScreen: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                .ignoresSafeArea()
+                .ignoresSafeArea(.all, edges: .top)
             }
             
             // MARK: - Content Overlay
