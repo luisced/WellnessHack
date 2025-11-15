@@ -36,17 +36,25 @@ class VapiChatViewModel: ObservableObject {
     /// Mensaje de error para mostrar
     @Published var errorMessage: String = ""
     
+    /// Indica si está en modo onboarding
+    @Published var isOnboarding: Bool = false
+    
+    /// Mensaje de onboarding actual
+    @Published var onboardingMessage: String = ""
+    
     // MARK: - Private Properties
     
     private let elevenLabsClient = ElevenLabsClient()
     private let healthKitManager = HealthKitManager.shared
     private let bodyBatteryCalculator = BodyBatteryCalculator()
+    private let onboardingManager = OnboardingManager.shared
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initialization
     
     init() {
         setupObservers()
+        checkOnboardingStatus()
     }
     
     // MARK: - Setup
@@ -102,34 +110,43 @@ class VapiChatViewModel: ObservableObject {
         connectionStatusText = "Conectando..."
         
         do {
-            // 1. Obtener datos de salud para contexto
-            let sleepData = try? await healthKitManager.fetchLastNightSleep()
-            let hrvAverage = try? await healthKitManager.fetchAverageHRV()
-            let activityData = try? await healthKitManager.fetchActivitySummary()
+            let context: ConversationContext
             
-            // 2. Calcular Body Battery
-            let bodyBattery = bodyBatteryCalculator.calculateBodyBattery(
-                sleepData: sleepData,
-                hrvAverage: hrvAverage,
-                activityData: activityData
-            )
+            // Verificar si es primera vez (onboarding)
+            if !onboardingManager.isOnboardingComplete {
+                // Modo onboarding - usar contexto especial
+                context = ConversationContext.createForOnboarding()
+                isOnboarding = true
+                onboardingMessage = onboardingManager.getOnboardingPrompt()
+                print("🎯 Iniciando onboarding conversacional")
+            } else {
+                // Modo normal - obtener datos de salud
+                let sleepData = try? await healthKitManager.fetchLastNightSleep()
+                let hrvAverage = try? await healthKitManager.fetchAverageHRV()
+                let activityData = try? await healthKitManager.fetchActivitySummary()
+                
+                let bodyBattery = bodyBatteryCalculator.calculateBodyBattery(
+                    sleepData: sleepData,
+                    hrvAverage: hrvAverage,
+                    activityData: activityData
+                )
+                
+                context = await ConversationContext.create(
+                    from: bodyBattery,
+                    sleepData: sleepData,
+                    activityData: activityData
+                )
+                
+                print("🎤 Sesión de chat normal iniciada")
+                print("📊 Body Battery: \(bodyBattery.score)/100")
+            }
             
-            // 3. Crear contexto de conversación
-            let context = await ConversationContext.create(
-                from: bodyBattery,
-                sleepData: sleepData,
-                activityData: activityData
-            )
-            
-            // 4. Iniciar conversación con ElevenLabs
+            // Iniciar conversación con ElevenLabs
             try await elevenLabsClient.startConversation(with: context)
             
-            // 5. Actualizar UI
+            // Actualizar UI
             chatState = .listening
-            connectionStatusText = "Conectado - Habla ahora"
-            
-            print("🎤 Sesión de chat iniciada con ElevenLabs")
-            print("📊 Body Battery: \(bodyBattery.score)/100")
+            connectionStatusText = isOnboarding ? "Onboarding - Habla conmigo" : "Conectado - Habla ahora"
             
         } catch {
             handleError(error)
@@ -179,6 +196,30 @@ class VapiChatViewModel: ObservableObject {
             isBotSpeaking = false
             chatState = .listening
         }
+    }
+    
+    // MARK: - Onboarding Methods
+    
+    private func checkOnboardingStatus() {
+        isOnboarding = !onboardingManager.isOnboardingComplete
+        if isOnboarding {
+            onboardingMessage = onboardingManager.getOnboardingPrompt()
+            print("👋 Usuario nuevo - Onboarding requerido")
+        } else {
+            print("✅ Usuario existente - Onboarding completado")
+        }
+    }
+    
+    func completeOnboarding() {
+        onboardingManager.completeOnboarding()
+        isOnboarding = false
+        onboardingMessage = ""
+        print("🎉 Onboarding completado!")
+    }
+    
+    func resetOnboarding() {
+        onboardingManager.resetOnboarding()
+        checkOnboardingStatus()
     }
     
     // MARK: - Private Methods
