@@ -1,9 +1,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var showSplash = true
+    
     var body: some View {
-        // Usando el nuevo MainTabView con navegación personalizada
-        MainTabView()
+        ZStack {
+            // Pantalla principal
+            MainTabView()
+            
+            // Pantalla de carga superpuesta
+            if showSplash {
+                SplashScreen(isActive: $showSplash)
+                    .transition(.opacity)
+                    .zIndex(1)
+            }
+        }
     }
 }
 
