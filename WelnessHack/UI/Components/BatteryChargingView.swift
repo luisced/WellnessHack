@@ -8,33 +8,7 @@ struct BatteryChargingView: View {
     let onBreakRequested: () -> Void
     
     var body: some View {
-        VStack(spacing: 24) {
-            HStack(alignment: .center, spacing: 20) {
-                // MARK: - Spline Battery Animation
-                splineBatteryView
-                    .frame(maxWidth: 180)
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    // Score de batería
-                    Text("\(Int(batteryLevel * 100))%")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                    
-                    // Estado actual del nivel
-                    Text(batteryStatusText)
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.9))
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    // MARK: - Take Break Button
-                    takeBreakButton
-                }
-            }
-            
-            // MARK: - Battery Level Meter
-            batteryLevelMeter
-        }
-        .padding(.horizontal, 20)
+        Color.clear
     }
     
     // MARK: - Spline Battery View
