@@ -96,7 +96,7 @@ struct BatteryChargingView: View {
     
     private var takeBreakButton: some View {
         Button(action: onBreakRequested) {
-            HStack(spacing: 8) {
+            VStack(spacing: 5) {
                 Image(systemName: "cup.and.saucer.fill")
                     .font(.system(size: 18))
                 
@@ -104,7 +104,7 @@ struct BatteryChargingView: View {
                     .font(.system(size: 16, weight: .semibold))
             }
             .foregroundColor(.white)
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 15)
             .padding(.vertical, 12)
             .background(
                 LinearGradient(

@@ -73,7 +73,8 @@ struct FocusScreen: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .scaleEffect(2.8)
                     .clipped()
-            } else {
+            }
+            else {
                 // Fallback gradient if Spline file not found
                 LinearGradient(
                     colors: [
@@ -88,7 +89,7 @@ struct FocusScreen: View {
             }
             
             // Overlay azul para bordes y mejor legibilidad
-            Color.focusBlue.opacity(0.15)
+            Color.focusBlue.opacity(0.1)
                 .ignoresSafeArea(.all)
         }
     }
