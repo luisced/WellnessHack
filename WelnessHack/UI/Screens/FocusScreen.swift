@@ -3,58 +3,58 @@ import SplineRuntime
 
 struct FocusScreen: View {
     @StateObject private var viewModel = FocusViewModel()
-    
+    @State private var showBreak = false
+    @Binding var isBreakActive: Bool
     var body: some View {
         // MARK: - Content with Spline Background
         
-        VStack(spacing: 0) {
-            // MARK: - Title (centrado)
-            titleView
-                .padding(.top, 60)
+        ZStack {
+            // MARK: - Spline Background (fondo completo)
+            backgroundView
+                .ignoresSafeArea(.all)
             
-            // MARK: - Clock/Timer Section (centrado en pantalla)
-            Spacer()
-            
-            centerContentView
-            
-            Spacer()
-            
-            // MARK: - Motivational Messages (más abajo)
-            MotivationalMessagesView(messages: viewModel.currentMessages)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 120) // Más espacio desde abajo
-        }
-        .background(
-            ZStack {
-                // MARK: - Spline 3D Meditation Background
-                
-                if let url = Bundle.main.url(
-                    forResource: "meditation_copy",
-                    withExtension: "splineswift"
-                ) {
-                    SplineView(sceneFileURL: url)
-                        .ignoresSafeArea(.all) // Ignorar todos los bordes
-                        .scaleEffect(2.2) // Círculo aún más grande
-                        .clipped()
-                } else {
-                    // Fallback gradient if Spline file not found
-                    LinearGradient(
-                        colors: [
-                            Color.focusBackground,
-                            Color.focusBackground.opacity(0.8),
-                            Color.black.opacity(0.9)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+            if showBreak {
+                BreakScreen(onBackToMain: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showBreak = false
+                        isBreakActive = false
+                    }
+                })
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            } else {
+                // MARK: - Content
+                VStack(spacing: 0) {
+                    // MARK: - Title (centrado y estático)
+                    titleView
+                        .padding(.top, 100)
+                    
+                    // MARK: - Clock/Timer Section (centrado en pantalla)
+                    Spacer()
+                    BatteryChargingView(
+                        batteryLevel: viewModel.batteryLevel,
+                        onBreakRequested: {
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                showBreak = true
+                                isBreakActive = true
+                            }
+                        }
                     )
-                    .ignoresSafeArea(.all)
+                    .padding(.vertical, 40)
+                    
+                    Spacer()
                 }
-                
-                // Overlay azul para bordes y mejor legibilidad
-                Color.focusBlue.opacity(0.15)
-                    .ignoresSafeArea(.all)
+                .overlay(
+                    // MARK: - Motivational Messages (flotantes por encima)
+                    VStack {
+                        Spacer()
+                        MotivationalMessagesView(messages: viewModel.currentMessages)
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 140) // Altura desde el bottom
+                    }
+                    , alignment: .bottom
+                )
             }
-        )
+        }
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -66,21 +66,57 @@ struct FocusScreen: View {
         }
     }
     
+    // MARK: - Background View
+    
+    private var backgroundView: some View {
+        ZStack {
+            // MARK: - Spline 3D Meditation Background
+            
+            if let url = Bundle.main.url(
+                forResource: "meditation_copy",
+                withExtension: "splineswift"
+            ) {
+                SplineView(sceneFileURL: url)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .scaleEffect(2.8)
+                    .clipped()
+            }
+            else {
+                // Fallback gradient if Spline file not found
+                LinearGradient(
+                    colors: [
+                        Color.focusBackground,
+                        Color.focusBackground.opacity(0.8),
+                        Color.black.opacity(0.9)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea(.all)
+            }
+            
+            // Overlay azul para bordes y mejor legibilidad
+            Color.focusBlue.opacity(0.1)
+                .ignoresSafeArea(.all)
+        }
+    }
+    
     // MARK: - Title View
     
     private var titleView: some View {
-        // Título siempre en una línea (sin reloj pequeño)
-        Text("TAKE A BREAK")
-            .font(.system(size: viewModel.focusState == .idle ? 36 : 28, weight: .bold, design: .default))
-            .foregroundColor(Color.focusBlue)
+        // Título estático (sin cambios de tamaño)
+        Text("Body Battery")
+            .font(.system(size: 36, weight: .bold, design: .default))
+            .foregroundColor(Color.appAccent.opacity(0.7))
             .tracking(3)
     }
     
     // MARK: - Center Content (Clock or Timer)
     
     private var centerContentView: some View {
-        VStack(spacing: 40) {
-            // Clock or Timer (centered)
+        // Contenedor con ALTURA FIJA TOTAL para mantener posición consistente
+        VStack(spacing: 0) {
+            // Clock or Timer (centered) - SIEMPRE en la misma posición
             ZStack {
                 // Clock (idle state)
                 if viewModel.focusState == .idle {
@@ -93,7 +129,7 @@ struct FocusScreen: View {
                     .transition(.opacity)
                 }
                 
-                // Timer (active states) - centrado en la misma posición
+                // Timer (active states) - exactamente en la misma posición
                 if viewModel.focusState != .idle {
                     TimerCircleView(
                         timeRemaining: viewModel.timeRemaining,
@@ -103,14 +139,27 @@ struct FocusScreen: View {
                     .transition(.opacity)
                 }
             }
+            .frame(height: 200)
             .animation(.easeInOut(duration: 0.8), value: viewModel.focusState)
             
-            // Timer controls (solo cuando el timer está activo)
-            if viewModel.focusState != .idle {
-                timerControlsView
-                    .transition(.opacity)
+            // Espaciado entre reloj/timer y controles
+            Spacer()
+                .frame(height: 20)
+            
+            // Timer controls con altura fija (60pt cuando visible, 60pt vacío cuando no)
+            Group {
+                if viewModel.focusState != .idle {
+                    timerControlsView
+                        .transition(.opacity)
+                } else {
+                    // Espacio vacío del mismo tamaño para mantener altura total
+                    Color.clear
+                        .frame(height: 60)
+                }
             }
+            .frame(height: 60)
         }
+        .frame(height: 280) // ALTURA TOTAL FIJA: 200 (reloj) + 20 (espacio) + 60 (controles)
     }
     
     // MARK: - Timer Controls
@@ -123,7 +172,7 @@ struct FocusScreen: View {
             }) {
                 Image(systemName: viewModel.isTimerActive ? "pause.circle.fill" : "play.circle.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(.focusBlue)
+                    .foregroundColor(.calendarMint)
             }
             .buttonStyle(PlainButtonStyle())
             
@@ -146,12 +195,12 @@ struct FocusScreen: View {
 // MARK: - Preview
 
 #Preview {
-    FocusScreen()
+    FocusScreen(isBreakActive: .constant(false))
 }
 
 #Preview("Timer Active") {
     let viewModel = FocusViewModel()
-    FocusScreen()
+    FocusScreen(isBreakActive: .constant(false))
         .onAppear {
             viewModel.startFocusSession()
         }
@@ -159,7 +208,7 @@ struct FocusScreen: View {
 
 #Preview("Timer Paused") {
     let viewModel = FocusViewModel()
-    FocusScreen()
+    FocusScreen(isBreakActive: .constant(false))
         .onAppear {
             viewModel.startFocusSession()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

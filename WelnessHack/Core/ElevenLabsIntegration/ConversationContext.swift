@@ -59,6 +59,47 @@ struct ConversationContext: Codable {
     
     // MARK: - Factory Methods
     
+    /// Crea un contexto para onboarding (primera vez del usuario)
+    static func createForOnboarding() -> ConversationContext {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Determine time of day
+        let hour = calendar.component(.hour, from: now)
+        let timeOfDay: String
+        switch hour {
+        case 5..<12:
+            timeOfDay = "morning"
+        case 12..<17:
+            timeOfDay = "afternoon"
+        case 17..<21:
+            timeOfDay = "evening"
+        default:
+            timeOfDay = "night"
+        }
+        
+        // Day of week
+        let weekday = calendar.component(.weekday, from: now)
+        let dayOfWeek = calendar.weekdaySymbols[weekday - 1]
+        
+        return ConversationContext(
+            bodyBattery: 50, // Default neutral value
+            energyLevel: "unknown",
+            sleepLastNight: "unknown",
+            sleepQuality: 0,
+            hrvAverage: nil,
+            activityToday: "unknown",
+            timeOfDay: timeOfDay,
+            dayOfWeek: dayOfWeek,
+            currentTime: now,
+            language: "es",
+            userName: nil,
+            conversationID: "onboarding_\(UUID().uuidString)",
+            messageCount: 0,
+            lastInteraction: nil
+        )
+    }
+    
     static func create(from snapshot: BodyBatterySnapshot, sleepData: SleepData?, activityData: ActivityData?) async -> ConversationContext {
         let calendar = Calendar.current
         let now = Date()

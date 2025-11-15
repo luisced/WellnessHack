@@ -1,5 +1,5 @@
 import SwiftUI
-import ElevenLabsSDK
+import ElevenLabs
 
 struct EnergyCoachView: View {
     @StateObject private var viewModel = EnergyCoachViewModel()
@@ -109,7 +109,7 @@ struct EnergyCoachView: View {
 // MARK: - Chat Messages View
 
 struct ChatMessagesView: View {
-    let messages: [Message]
+    let messages: [ConversationMessage]
     
     var body: some View {
         ScrollViewReader { proxy in
@@ -137,7 +137,7 @@ struct ChatMessagesView: View {
 }
 
 struct MessageBubble: View {
-    let message: Message
+    let message: ConversationMessage
     
     var body: some View {
         HStack {

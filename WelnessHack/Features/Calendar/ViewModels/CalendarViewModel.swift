@@ -54,15 +54,6 @@ class CalendarViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let calendar = Calendar.current
     
-    // TODO: BACKEND - Agregar EventKit manager cuando se implemente
-    // private var eventStore: EKEventStore?
-    
-    // TODO: BACKEND - Agregar CalendarManager
-    // private var calendarManager: CalendarManager?
-    
-    // TODO: BACKEND - Agregar integración con HealthKit para eventos de salud
-    // private var healthKitManager: HealthKitManager?
-    
     // MARK: - Initialization
     
     init() {
@@ -75,31 +66,7 @@ class CalendarViewModel: ObservableObject {
     
     /// Solicita permisos de acceso al calendario del sistema
     func requestCalendarAccess() async {
-        // TODO: BACKEND - Implementar solicitud de permisos EventKit
-        /*
-        do {
-            let eventStore = EKEventStore()
-            
-            if #available(iOS 17.0, *) {
-                let granted = try await eventStore.requestFullAccessToEvents()
-                hasCalendarAccess = granted
-            } else {
-                // Fallback para iOS 16 y anteriores
-                let status = EKEventStore.authorizationStatus(for: .event)
-                hasCalendarAccess = (status == .authorized)
-            }
-            
-            if hasCalendarAccess {
-                await loadSystemEvents()
-            }
-        } catch {
-            handleError(error)
-        }
-        */
-        
-        // MOCK: Simular permisos concedidos
         hasCalendarAccess = true
-        print("📅 [MOCK] Permisos de calendario concedidos")
     }
     
     /// Cambia el mes mostrado en el calendario
@@ -152,65 +119,22 @@ class CalendarViewModel: ObservableObject {
         return weeklyEvents[dayKey]?[hour] ?? []
     }
     
-    /// Agrega un nuevo evento
+    /// Agrega un nuevo evento (solo para consistencia de API)
     func addEvent(title: String, date: Date, duration: TimeInterval = 3600) async {
-        // TODO: BACKEND - Implementar creación de eventos
-        /*
-        do {
-            let event = CalendarEvent(
-                id: UUID(),
-                title: title,
-                startDate: date,
-                endDate: date.addingTimeInterval(duration),
-                isAllDay: false,
-                location: nil,
-                notes: nil,
-                source: .user
-            )
-            
-            try await calendarManager?.saveEvent(event)
-            await loadEventsForDate(selectedDate)
-            
-        } catch {
-            handleError(error)
-        }
-        */
-        
-        // MOCK: Simular creación de evento
-        let mockEvent = CalendarEvent(
-            id: UUID(),
-            title: title,
-            startDate: date,
-            endDate: date.addingTimeInterval(duration),
-            isAllDay: false,
-            location: nil,
-            notes: nil,
-            source: .user
-        )
-        
-        todayEvents.append(mockEvent)
-        monthEvents.append(mockEvent)
-        
-        print("📅 [MOCK] Evento creado: \(title)")
+        // No hace nada - eventos son solo de lectura
+        print("📅 Los eventos son solo de lectura en esta versión")
     }
     
-    /// Elimina un evento
+    /// Elimina un evento (solo para consistencia de API)
     func deleteEvent(_ event: CalendarEvent) async {
-        // TODO: BACKEND - Implementar eliminación de eventos
-        /*
-        do {
-            try await calendarManager?.deleteEvent(event)
-            await loadEventsForDate(selectedDate)
-        } catch {
-            handleError(error)
-        }
-        */
-        
-        // MOCK: Simular eliminación
-        todayEvents.removeAll { $0.id == event.id }
-        monthEvents.removeAll { $0.id == event.id }
-        
-        print("📅 [MOCK] Evento eliminado: \(event.title)")
+        // No hace nada - eventos son solo de lectura
+        print("📅 Los eventos son solo de lectura en esta versión")
+    }
+    
+    /// Actualiza un evento (solo para consistencia de API)
+    func updateEvent(_ event: CalendarEvent) async {
+        // No hace nada - eventos son solo de lectura
+        print("📅 Los eventos son solo de lectura en esta versión")
     }
     
     // MARK: - Private Methods
@@ -252,142 +176,190 @@ class CalendarViewModel: ObservableObject {
     }
     
     private func loadMockEvents() {
-        // MOCK: Eventos de ejemplo distribuidos en la semana para testing UI
+        // Eventos del 14 al 20 de Noviembre 2025
         let calendar = Calendar.current
-        let today = Date()
-        
         var mockEvents: [CalendarEvent] = []
         
-        // Eventos para diferentes días de la semana
-        for dayOffset in -2...4 { // Semana completa
-            guard let day = calendar.date(byAdding: .day, value: dayOffset, to: today) else { continue }
-            
-            // Eventos matutinos
-            if dayOffset != 0 { // No en domingo
-                mockEvents.append(CalendarEvent(
-                    id: UUID(),
-                    title: "Morning Workout",
-                    startDate: calendar.date(byAdding: .hour, value: 7, to: calendar.startOfDay(for: day))!,
-                    endDate: calendar.date(byAdding: .hour, value: 8, to: calendar.startOfDay(for: day))!,
-                    isAllDay: false,
-                    location: "Gym",
-                    notes: "Cardio + weights",
-                    source: .healthKit
-                ))
-            }
-            
-            // Eventos de trabajo (lunes a viernes)
-            if dayOffset >= -1 && dayOffset <= 3 {
-                mockEvents.append(CalendarEvent(
-                    id: UUID(),
-                    title: "Team Meeting",
-                    startDate: calendar.date(byAdding: .hour, value: 10, to: calendar.startOfDay(for: day))!,
-                    endDate: calendar.date(byAdding: .hour, value: 11, to: calendar.startOfDay(for: day))!,
-                    isAllDay: false,
-                    location: "Conference Room A",
-                    notes: "Weekly sync",
-                    source: .system
-                ))
-                
-                mockEvents.append(CalendarEvent(
-                    id: UUID(),
-                    title: "Focus Time",
-                    startDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: day))!,
-                    endDate: calendar.date(byAdding: .hour, value: 16, to: calendar.startOfDay(for: day))!,
-                    isAllDay: false,
-                    location: nil,
-                    notes: "Deep work session",
-                    source: .ai
-                ))
-            }
-            
-            // Eventos de almuerzo
+        // Crear componentes para noviembre 2025
+        var dateComponents = DateComponents()
+        dateComponents.year = 2025
+        dateComponents.month = 11
+        
+        // 14 de Noviembre - Viernes (4 eventos)
+        dateComponents.day = 14
+        if let day = calendar.date(from: dateComponents) {
             mockEvents.append(CalendarEvent(
-                id: UUID(),
-                title: "Lunch Break",
-                startDate: calendar.date(byAdding: .hour, value: 13, to: calendar.startOfDay(for: day))!,
-                endDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: day))!,
-                isAllDay: false,
-                location: dayOffset == 0 ? "Restaurant" : nil,
-                notes: "Mindful eating",
+                title: "Morning Workout",
+                startDate: calendar.date(byAdding: .hour, value: 7, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 8, to: calendar.startOfDay(for: day))!,
+                location: "Gym",
+                source: .healthKit
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Team Standup",
+                startDate: calendar.date(byAdding: .hour, value: 10, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 10, to: calendar.startOfDay(for: day))! + 1800,
+                location: "Conference Room A",
+                source: .system
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Focus Time",
+                startDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 16, to: calendar.startOfDay(for: day))!,
+                notes: "Deep work session",
+                source: .ai
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Dinner with Team",
+                startDate: calendar.date(byAdding: .hour, value: 19, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 21, to: calendar.startOfDay(for: day))!,
+                location: "Downtown Restaurant",
                 source: .user
             ))
-            
-            // Eventos de fin de semana
-            if dayOffset == -2 || dayOffset == 4 {
-                mockEvents.append(CalendarEvent(
-                    id: UUID(),
-                    title: "Family Time",
-                    startDate: calendar.date(byAdding: .hour, value: 16, to: calendar.startOfDay(for: day))!,
-                    endDate: calendar.date(byAdding: .hour, value: 18, to: calendar.startOfDay(for: day))!,
-                    isAllDay: false,
-                    location: "Home",
-                    notes: "Quality time",
-                    source: .user
-                ))
-            }
         }
         
+        // 15 de Noviembre - Sábado (2 eventos)
+        dateComponents.day = 15
+        if let day = calendar.date(from: dateComponents) {
+            mockEvents.append(CalendarEvent(
+                title: "Yoga Session",
+                startDate: calendar.date(byAdding: .hour, value: 9, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 10, to: calendar.startOfDay(for: day))!,
+                location: "Home",
+                source: .healthKit
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Family Brunch",
+                startDate: calendar.date(byAdding: .hour, value: 12, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: day))!,
+                location: "Home",
+                source: .user
+            ))
+        }
+        
+        // 16 de Noviembre - Domingo (SIN EVENTOS)
+        
+        // 17 de Noviembre - Lunes (3 eventos)
+        dateComponents.day = 17
+        if let day = calendar.date(from: dateComponents) {
+            mockEvents.append(CalendarEvent(
+                title: "Morning Run",
+                startDate: calendar.date(byAdding: .hour, value: 6, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 7, to: calendar.startOfDay(for: day))!,
+                notes: "5K route",
+                source: .healthKit
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Product Review",
+                startDate: calendar.date(byAdding: .hour, value: 11, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 12, to: calendar.startOfDay(for: day))!,
+                location: "Zoom",
+                source: .system
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Client Presentation",
+                startDate: calendar.date(byAdding: .hour, value: 15, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 16, to: calendar.startOfDay(for: day))! + 1800,
+                location: "Meeting Room B",
+                source: .system
+            ))
+        }
+        
+        // 18 de Noviembre - Martes (4 eventos)
+        dateComponents.day = 18
+        if let day = calendar.date(from: dateComponents) {
+            mockEvents.append(CalendarEvent(
+                title: "Meditation",
+                startDate: calendar.date(byAdding: .hour, value: 7, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 7, to: calendar.startOfDay(for: day))! + 1800,
+                notes: "Mindfulness practice",
+                source: .ai
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Design Review",
+                startDate: calendar.date(byAdding: .hour, value: 10, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 11, to: calendar.startOfDay(for: day))!,
+                location: "Design Studio",
+                source: .system
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Lunch & Learn",
+                startDate: calendar.date(byAdding: .hour, value: 13, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: day))!,
+                location: "Cafeteria",
+                source: .user
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Code Review",
+                startDate: calendar.date(byAdding: .hour, value: 16, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 17, to: calendar.startOfDay(for: day))!,
+                source: .system
+            ))
+        }
+        
+        // 19 de Noviembre - Miércoles (3 eventos)
+        dateComponents.day = 19
+        if let day = calendar.date(from: dateComponents) {
+            mockEvents.append(CalendarEvent(
+                title: "Gym Session",
+                startDate: calendar.date(byAdding: .hour, value: 6, to: calendar.startOfDay(for: day))! + 1800,
+                endDate: calendar.date(byAdding: .hour, value: 8, to: calendar.startOfDay(for: day))!,
+                location: "Fitness Center",
+                notes: "Leg day",
+                source: .healthKit
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "All Hands Meeting",
+                startDate: calendar.date(byAdding: .hour, value: 14, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 15, to: calendar.startOfDay(for: day))!,
+                location: "Main Hall",
+                source: .system
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Break Time",
+                startDate: calendar.date(byAdding: .hour, value: 17, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 17, to: calendar.startOfDay(for: day))! + 900,
+                notes: "AI suggested rest",
+                source: .ai
+            ))
+        }
+        
+        // 20 de Noviembre - Jueves (2 eventos)
+        dateComponents.day = 20
+        if let day = calendar.date(from: dateComponents) {
+            mockEvents.append(CalendarEvent(
+                title: "Sprint Planning",
+                startDate: calendar.date(byAdding: .hour, value: 9, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 11, to: calendar.startOfDay(for: day))!,
+                location: "Conference Room C",
+                source: .system
+            ))
+            mockEvents.append(CalendarEvent(
+                title: "Happy Hour",
+                startDate: calendar.date(byAdding: .hour, value: 18, to: calendar.startOfDay(for: day))!,
+                endDate: calendar.date(byAdding: .hour, value: 20, to: calendar.startOfDay(for: day))!,
+                location: "Local Bar",
+                source: .user
+            ))
+        }
+        
+        let today = Date()
         todayEvents = mockEvents.filter { calendar.isDate($0.startDate, inSameDayAs: today) }
         monthEvents = mockEvents
         organizeEventsForDays()
     }
     
     private func loadEventsForDate(_ date: Date) {
-        // TODO: BACKEND - Cargar eventos reales para la fecha
-        /*
-        Task {
-            do {
-                isLoading = true
-                let events = try await calendarManager?.getEvents(for: date) ?? []
-                
-                await MainActor.run {
-                    todayEvents = events
-                    isLoading = false
-                }
-            } catch {
-                await MainActor.run {
-                    handleError(error)
-                    isLoading = false
-                }
-            }
-        }
-        */
-        
-        // MOCK: Filtrar eventos mock para la fecha seleccionada
         let calendar = Calendar.current
         todayEvents = monthEvents.filter { event in
             calendar.isDate(event.startDate, inSameDayAs: date)
         }
-        
-        print("📅 [MOCK] Cargados \(todayEvents.count) eventos para \(date)")
+        print("📅 Cargados \(todayEvents.count) eventos para \(date)")
     }
     
     private func loadEventsForMonth(_ month: Date) {
-        // TODO: BACKEND - Cargar eventos del mes
-        /*
-        Task {
-            do {
-                isLoading = true
-                let events = try await calendarManager?.getEvents(for: month) ?? []
-                
-                await MainActor.run {
-                    monthEvents = events
-                    loadEventsForDate(selectedDate)
-                    isLoading = false
-                }
-            } catch {
-                await MainActor.run {
-                    handleError(error)
-                    isLoading = false
-                }
-            }
-        }
-        */
-        
-        // MOCK: Mantener eventos mock
         loadEventsForDate(selectedDate)
-        print("📅 [MOCK] Eventos del mes cargados")
+        print("📅 Eventos del mes cargados")
     }
     
     private func handleError(_ error: Error) {
@@ -415,105 +387,3 @@ enum CalendarViewMode: String, CaseIterable {
     }
 }
 
-/// Modelo de evento de calendario
-struct CalendarEvent: Identifiable, Codable {
-    let id: UUID
-    let title: String
-    let startDate: Date
-    let endDate: Date
-    let isAllDay: Bool
-    let location: String?
-    let notes: String?
-    let source: EventSource
-    
-    var duration: TimeInterval {
-        endDate.timeIntervalSince(startDate)
-    }
-    
-    var formattedTime: String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        
-        if isAllDay {
-            return "All Day"
-        } else {
-            return "\(formatter.string(from: startDate)) - \(formatter.string(from: endDate))"
-        }
-    }
-}
-
-/// Fuente del evento
-enum EventSource: String, Codable {
-    case system = "system"     // Calendario del sistema
-    case user = "user"         // Creado por el usuario
-    case healthKit = "health"  // Generado desde HealthKit
-    case ai = "ai"            // Sugerido por IA
-    
-    var color: Color {
-        switch self {
-        case .system: return .blue
-        case .user: return .green
-        case .healthKit: return .red
-        case .ai: return .purple
-        }
-    }
-    
-    var displayName: String {
-        switch self {
-        case .system: return "System"
-        case .user: return "Personal"
-        case .healthKit: return "Health"
-        case .ai: return "AI Suggested"
-        }
-    }
-}
-
-// MARK: - TODO: Backend Implementation Notes
-
-/*
- BACKEND PENDIENTE - Implementaciones necesarias:
- 
- 1. CalendarManager.swift
-    - Integración con EventKit para eventos del sistema
-    - CRUD de eventos personalizados
-    - Sincronización con calendarios externos
-    - Métodos: getEvents(), saveEvent(), deleteEvent(), updateEvent()
- 
- 2. EventKit Integration
-    - Solicitar permisos de calendario
-    - Leer eventos existentes del sistema
-    - Crear/editar eventos en calendarios del usuario
-    - Manejar diferentes tipos de calendario (personal, trabajo, etc.)
- 
- 3. HealthKit Integration
-    - Generar eventos automáticos desde datos de salud
-    - Workouts → Calendar events
-    - Sleep sessions → Calendar blocks
-    - Medication reminders → Calendar alerts
- 
- 4. AI Event Suggestions
-    - Analizar patrones de Body Battery
-    - Sugerir breaks y focus time
-    - Recomendar workout times
-    - Integrar con VapiChat para scheduling
- 
- 5. CalendarStore.swift
-    - Persistencia local de eventos personalizados
-    - Cache de eventos del sistema
-    - Configuración de preferencias de calendario
-    - Backup y restore de datos
- 
- 6. Permisos en Info.plist:
-    - NSCalendarsUsageDescription
-    - Descripción: "Para mostrar tus eventos y ayudarte a planificar tu día"
- 
- 7. Notificaciones de Eventos:
-    - Recordatorios personalizados
-    - Integración con focus modes
-    - Alertas de Body Battery para eventos importantes
- 
- 8. Integración con Morning Briefing:
-    - Eventos del día en DailyBriefingCard
-    - Análisis de carga de trabajo
-    - Recomendaciones de energía para eventos
- */

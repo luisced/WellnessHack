@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		48FE68392EC699B400C45FB7 /* ElevenLabsSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 48FE68382EC699B400C45FB7 /* ElevenLabsSDK */; };
+		48CDE2E32EC7A52E001B5E05 /* ElevenLabs in Frameworks */ = {isa = PBXBuildFile; productRef = 48CDE2E22EC7A52E001B5E05 /* ElevenLabs */; };
 		48FE68422EC6E00000000002 /* SplineRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 48FE68412EC6E00000000001 /* SplineRuntime */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		48FE67312EC6763B00C45FB7 /* WelnessHack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WelnessHack.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		48FE67312EC6763B00C45FB7 /* ME IN.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ME IN.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -29,6 +29,7 @@
 				Features/README_Features.md,
 				Features/Reflections/README.md,
 				Features/Retention/README.md,
+				Info.plist,
 				Resources/README_Resources.md,
 				Services/README_Services.md,
 				UI/README_UI.md,
@@ -56,7 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				48FE68392EC699B400C45FB7 /* ElevenLabsSDK in Frameworks */,
+				48CDE2E32EC7A52E001B5E05 /* ElevenLabs in Frameworks */,
 				48FE68422EC6E00000000002 /* SplineRuntime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -64,10 +65,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		48CDE2E12EC7A52E001B5E05 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		48FE67282EC6763B00C45FB7 = {
 			isa = PBXGroup;
 			children = (
 				48FE67332EC6763B00C45FB7 /* WelnessHack */,
+				48CDE2E12EC7A52E001B5E05 /* Frameworks */,
 				48FE67322EC6763B00C45FB7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -75,7 +84,7 @@
 		48FE67322EC6763B00C45FB7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				48FE67312EC6763B00C45FB7 /* WelnessHack.app */,
+				48FE67312EC6763B00C45FB7 /* ME IN.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -100,11 +109,11 @@
 			);
 			name = WelnessHack;
 			packageProductDependencies = (
-				48FE68382EC699B400C45FB7 /* ElevenLabsSDK */,
 				48FE68412EC6E00000000001 /* SplineRuntime */,
+				48CDE2E22EC7A52E001B5E05 /* ElevenLabs */,
 			);
 			productName = WelnessHack;
-			productReference = 48FE67312EC6763B00C45FB7 /* WelnessHack.app */;
+			productReference = 48FE67312EC6763B00C45FB7 /* ME IN.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -298,8 +307,10 @@
 				DEVELOPMENT_TEAM = CXRF4T527C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WelnessHack/Info.plist;
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Necesitamos acceso a tus datos de salud para calcular tu nivel de energía";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Necesitamos acceso a tus datos de salud (sueño, HRV, actividad) para calcular tu nivel de energía y darte recomendaciones personalizadas";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Necesitamos Acceso para que te comuniques con MEMI";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -310,8 +321,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.WellnessHack;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.centrosmexico.mein;
+				PRODUCT_NAME = "ME IN";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -333,8 +344,10 @@
 				DEVELOPMENT_TEAM = CXRF4T527C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WelnessHack/Info.plist;
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Necesitamos acceso a tus datos de salud para calcular tu nivel de energía";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Necesitamos acceso a tus datos de salud (sueño, HRV, actividad) para calcular tu nivel de energía y darte recomendaciones personalizadas";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Necesitamos Acceso para que te comuniques con MEMI";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -345,8 +358,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.WellnessHack;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.centrosmexico.mein;
+				PRODUCT_NAME = "ME IN";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -386,7 +399,7 @@
 			repositoryURL = "https://github.com/elevenlabs/elevenlabs-swift-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 2.0.0;
 			};
 		};
 		48FE68402EC6E00000000000 /* XCRemoteSwiftPackageReference "spline-ios" */ = {
@@ -400,10 +413,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		48FE68382EC699B400C45FB7 /* ElevenLabsSDK */ = {
+		48CDE2E22EC7A52E001B5E05 /* ElevenLabs */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 48FE68372EC699B400C45FB7 /* XCRemoteSwiftPackageReference "elevenlabs-swift-sdk" */;
-			productName = ElevenLabsSDK;
+			productName = ElevenLabs;
 		};
 		48FE68412EC6E00000000001 /* SplineRuntime */ = {
 			isa = XCSwiftPackageProductDependency;

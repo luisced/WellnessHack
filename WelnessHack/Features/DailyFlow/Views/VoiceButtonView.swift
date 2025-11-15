@@ -1,5 +1,5 @@
 import SwiftUI
-import ElevenLabsSDK
+import ElevenLabs
 
 struct VoiceButtonView: View {
     let isConnected: Bool
@@ -12,25 +12,22 @@ struct VoiceButtonView: View {
     var body: some View {
         Button(action: onTap) {
             ZStack {
-                // Outer pulsing ring when agent is speaking
-                if isConnected && agentState == .speaking {
+                // Outer pulsing ring when connected (listening or speaking)
+                if isConnected {
                     Circle()
                         .stroke(
                             LinearGradient(
-                                colors: [
-                                    Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4), // #A2D9CE
-                                    Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.2)  // #71ADE1
-                                ],
+                                colors: pulsingRingColors,
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
                             lineWidth: 4
                         )
-                        .frame(width: 190, height: 190)
+                        .frame(width: 120, height: 120)
                         .scaleEffect(isPulsing ? 1.2 : 1.0)
                         .opacity(isPulsing ? 0 : 1)
                         .animation(
-                            Animation.easeInOut(duration: 1.5)
+                            Animation.easeInOut(duration: agentState == .speaking ? 1.5 : 2.5)
                                 .repeatForever(autoreverses: false),
                             value: isPulsing
                         )
@@ -45,12 +42,12 @@ struct VoiceButtonView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 160, height: 160)
+                    .frame(width: 120, height: 120)
                     .background(
                         // Glass blur effect
                         Circle()
                             .fill(.ultraThinMaterial)
-                            .frame(width: 160, height: 160)
+                            .frame(width: 120, height: 120)
                     )
                     .overlay(
                         // Glass border
@@ -72,33 +69,79 @@ struct VoiceButtonView: View {
                 
                 // Icon (sin texto)
                 Image(systemName: buttonIcon)
-                    .font(.system(size: 50, weight: .medium))
+                    .font(.system(size: 40, weight: .medium))
                     .foregroundColor(.white)
             }
         }
         .buttonStyle(PlainButtonStyle())
         .onAppear {
-            if isConnected && agentState == .speaking {
+            if isConnected {
                 isPulsing = true
             }
         }
-        .onChange(of: agentState) { newState in
-            isPulsing = isConnected && newState == .speaking
+        .onChange(of: isConnected) { connected in
+            isPulsing = connected
+        }
+        .onChange(of: agentState) { _ in
+            // Keep pulsing while connected, just change the speed
+            isPulsing = isConnected
         }
     }
     
     // MARK: - Computed Properties
     
     private var buttonGradientColors: [Color] {
-        // Gradiente cristal: verde menta a azul cielo
-        return [
-            Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4), // #A2D9CE
-            Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.3)  // #71ADE1
-        ]
+        if !isConnected {
+            // Desconectado: Gradiente sutil gris
+            return [
+                Color.gray.opacity(0.3),
+                Color.gray.opacity(0.2)
+            ]
+        } else if isMuted {
+            // Muteado: Gradiente rojo
+            return [
+                Color.red.opacity(0.5),
+                Color.orange.opacity(0.4)
+            ]
+        } else if agentState == .speaking {
+            // Hablando: Gradiente verde brillante
+            return [
+                Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.6), // #A2D9CE
+                Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.5)  // #71ADE1
+            ]
+        } else {
+            // Escuchando: Gradiente azul activo
+            return [
+                Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.5), // #71ADE1
+                Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4)  // #A2D9CE
+            ]
+        }
+    }
+    
+    private var pulsingRingColors: [Color] {
+        if agentState == .speaking {
+            // Anillo verde cuando habla
+            return [
+                Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.6), // #A2D9CE
+                Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.3)  // #71ADE1
+            ]
+        } else {
+            // Anillo azul cuando escucha
+            return [
+                Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.4), // #71ADE1
+                Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.2)  // #A2D9CE
+            ]
+        }
     }
     
     private var buttonShadowColor: Color {
-        return Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.4) // #71ADE1
+        if !isConnected {
+            return Color.gray.opacity(0.2)
+        } else if agentState == .speaking {
+            return Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4) // #A2D9CE
+        } else {
+            return Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.4) // #71ADE1
+        }
     }
     
     private var buttonIcon: String {
@@ -112,8 +155,6 @@ struct VoiceButtonView: View {
             return "mic.fill"
         }
     }
-    
-    // Texto removido - ya no se usa
 }
 
 // MARK: - Preview

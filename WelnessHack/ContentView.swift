@@ -1,27 +1,18 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var showSplash = true
+    
     var body: some View {
-        TabView {
-            EnergyCoachView()
-                .tabItem {
-                    Label("Coach", systemImage: "waveform.circle.fill")
-                }
+        ZStack {
+            MainTabView(splashCompleted: !showSplash)
+                .zIndex(0)
             
-            CalendarScreen()
-                .tabItem {
-                    Label("Calendar", systemImage: "calendar")
-                }
-            
-            FocusScreen()
-                .tabItem {
-                    Label("Focus", systemImage: "timer")
-                }
-            
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
+            if showSplash {
+                SplashScreen(isActive: $showSplash)
+                    .transition(.opacity)
+                    .zIndex(2)
+            }
         }
     }
 }
@@ -37,22 +28,22 @@ struct SettingsView: View {
         NavigationView {
             List {
                 // Environment Status
-                Section("Configuration Status") {
+                Section("Estado de Configuración") {
                     ConfigStatusRow(
                         title: "API Key",
                         isConfigured: !ElevenLabsConfig.apiKey.isEmpty,
-                        value: ElevenLabsConfig.apiKey.isEmpty ? "Not configured" : "Configured ✓"
+                        value: ElevenLabsConfig.apiKey.isEmpty ? "No configurado" : "Configurado ✓"
                     )
                     
                     ConfigStatusRow(
                         title: "Agent ID",
                         isConfigured: !ElevenLabsConfig.agentID.isEmpty,
-                        value: ElevenLabsConfig.agentID.isEmpty ? "Not configured" : "Configured ✓"
+                        value: ElevenLabsConfig.agentID.isEmpty ? "No configurado" : "Configurado ✓"
                     )
                 }
                 
                 // HealthKit Permission
-                Section("Permissions") {
+                Section("Permisos") {
                     HStack {
                         Image(systemName: "heart.fill")
                             .foregroundColor(.red)
@@ -62,7 +53,7 @@ struct SettingsView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
                         } else {
-                            Button("Authorize") {
+                            Button("Autorizar") {
                                 Task {
                                     await requestHealthKitPermission()
                                 }
@@ -73,9 +64,9 @@ struct SettingsView: View {
                 }
                 
                 // Setup Instructions
-                Section("Setup Instructions") {
+                Section("Instrucciones de Configuración") {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("1. Create .env file")
+                        Text("1. Crear archivo .env")
                             .font(.headline)
                         Text("cp .env.example .env")
                             .font(.system(.caption, design: .monospaced))
@@ -83,7 +74,7 @@ struct SettingsView: View {
                             .background(Color.gray.opacity(0.1))
                             .cornerRadius(4)
                         
-                        Text("2. Add your keys to .env")
+                        Text("2. Agrega tus claves al .env")
                             .font(.headline)
                         Text("ELEVENLABS_API_KEY=your_key\nELEVENLABS_AGENT_ID=your_id")
                             .font(.system(.caption, design: .monospaced))
@@ -91,53 +82,53 @@ struct SettingsView: View {
                             .background(Color.gray.opacity(0.1))
                             .cornerRadius(4)
                         
-                        Text("3. Add .env to Xcode")
+                        Text("3. Agrega .env a Xcode")
                             .font(.headline)
-                        Text("Drag .env to Xcode project\nMark 'Copy items if needed'")
+                        Text("Arrastra .env al proyecto Xcode\nMarca 'Copy items if needed'")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        Link("📖 Full Setup Guide", destination: URL(string: "https://github.com")!)
+                        Link("📖 Guía Completa de Configuración", destination: URL(string: "https://github.com")!)
                             .font(.caption)
                     }
                     .padding(.vertical, 4)
                 }
                 
                 // Quick Actions
-                Section("Quick Actions") {
+                Section("Acciones Rápidas") {
                     Button(action: {
                         Task {
                             await testHealthKitData()
                         }
                     }) {
-                        Label("Test HealthKit Data", systemImage: "heart.text.square")
+                        Label("Probar Datos de HealthKit", systemImage: "heart.text.square")
                     }
                     
                     Button(action: {
                         validateConfiguration()
                     }) {
-                        Label("Validate Configuration", systemImage: "checkmark.shield")
+                        Label("Validar Configuración", systemImage: "checkmark.shield")
                     }
                 }
                 
                 // App Info
-                Section("About") {
+                Section("Acerca de") {
                     HStack {
-                        Text("Version")
+                        Text("Versión")
                         Spacer()
                         Text("1.0.0")
                             .foregroundColor(.secondary)
                     }
                     
                     HStack {
-                        Text("Build")
+                        Text("Compilación")
                         Spacer()
                         Text("1")
                             .foregroundColor(.secondary)
                     }
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Configuración")
             .task {
                 await checkHealthKitStatus()
             }

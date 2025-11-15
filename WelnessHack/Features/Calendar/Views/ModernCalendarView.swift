@@ -1,40 +1,26 @@
 import SwiftUI
 
-/// Vista de calendario moderna con diseño minimalista y scroll bidireccional
+/// Vista de calendario moderna con lista de eventos para un solo día
 struct ModernCalendarView: View {
     @ObservedObject var viewModel: CalendarViewModel
     
-    private let hourHeight: CGFloat = 60
-    private var visibleHours: [Int] {
-        Array(viewModel.startHour...viewModel.endHour)
+    // Eventos del día seleccionado, ordenados cronológicamente
+    private var sortedDayEvents: [CalendarEvent] {
+        let selectedDayStart = Calendar.current.startOfDay(for: viewModel.selectedDate)
+        let eventsForDay = viewModel.monthEvents.filter { event in
+            Calendar.current.isDate(event.startDate, inSameDayAs: selectedDayStart)
+        }
+        return eventsForDay.sorted { $0.startDate < $1.startDate }
     }
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                // Header principal con mes y navegación
-                ModernCalendarHeader(viewModel: viewModel)
+                // Header del día seleccionado (con swipe navigation)
+                SingleDayHeader(viewModel: viewModel)
                 
-                // Días de la semana horizontal (con scroll horizontal)
-                ModernDaysHeader(viewModel: viewModel)
-                
-                // Grid principal del calendario (con scroll bidireccional)
-                ModernScrollableCalendarGrid(
-                    viewModel: viewModel,
-                    hours: visibleHours,
-                    hourHeight: hourHeight
-                )
-            }
-            
-            // Botón flotante para añadir eventos
-            VStack {
-                Spacer()
-                HStack {
-                    AddEventFloatingButton()
-                    Spacer()
-                }
-                .padding(.bottom, 30)
-                .padding(.leading, 20)
+                // Lista vertical de eventos ordenados cronológicamente
+                EventsList(events: sortedDayEvents)
             }
         }
     }
@@ -75,25 +61,35 @@ struct ModernCalendarHeader: View {
             
             Spacer()
             
-            // Today number in circle
-            Text(todayNumber)
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .frame(width: 32, height: 32)
-                .background(
-                    Circle()
-                        .fill(Color.calendarDarkBlue.opacity(0.8))
-                )
+            // Today button - Click to jump to today
+            Button(action: {
+                // Navegar al día de hoy
+                viewModel.centerDate = Date()
+                viewModel.selectedDate = Date()
+                viewModel.setupCurrentDays()
+                viewModel.organizeEventsForDays()
+            }) {
+                Text(todayNumber)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Circle()
+                            .fill(Color.calendarDarkBlue.opacity(0.8))
+                    )
+            }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
         .background(
+            // Mismo estilo que el tab bar inferior
             Rectangle()
-                .fill(.ultraThinMaterial)
-                .overlay(
+                .fill(Color.calendarMint.opacity(0.3))
+                .background(
                     Rectangle()
-                        .fill(Color.calendarWhite.opacity(0.2))
+                        .fill(.thinMaterial)
+                        .opacity(0.5)
                 )
         )
         .sheet(isPresented: $showMonthPicker) {
@@ -112,55 +108,83 @@ struct ModernCalendarHeader: View {
     }
 }
 
-/// Header con días scrolleable horizontalmente
-struct ModernDaysHeader: View {
+/// Header con el día seleccionado (navegación por swipe)
+struct SingleDayHeader: View {
     @ObservedObject var viewModel: CalendarViewModel
+    @State private var dragOffset: CGFloat = 0
     
     private let calendar = Calendar.current
     
-    // Generar más días para scroll horizontal (7 días hacia cada lado)
-    private var extendedDays: [Date] {
-        (-7...7).compactMap { offset in
-            calendar.date(byAdding: .day, value: offset, to: viewModel.centerDate)
-        }
+    private var dayName: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE" // Día completo: Monday, Tuesday, etc.
+        return formatter.string(from: viewModel.selectedDate)
+    }
+    
+    private var dayNumber: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d"
+        return formatter.string(from: viewModel.selectedDate)
+    }
+    
+    private var isToday: Bool {
+        calendar.isDateInToday(viewModel.selectedDate)
     }
     
     var body: some View {
         HStack(spacing: 0) {
-            // Espacio para columna de horas
-            Text("CST")
-                .font(.caption)
-                .foregroundColor(Color.calendarDarkBlue.opacity(0.7))
-                .frame(width: 60, alignment: .leading)
-                .padding(.leading, 8)
-            
-            // Días scrolleables horizontalmente
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 0) {
-                    ForEach(extendedDays, id: \.self) { day in
-                        ModernDayHeaderItem(
-                            date: day,
-                            isSelected: calendar.isDate(day, inSameDayAs: viewModel.selectedDate),
-                            onTap: { 
-                                viewModel.selectDate(day)
-                                viewModel.centerDate = day
-                                viewModel.setupCurrentDays()
-                                viewModel.organizeEventsForDays()
-                            }
-                        )
-                        .frame(width: 80) // Ancho fijo para cada día
+            // Navegación: Día anterior (color tenue)
+            Button(action: {
+                if let previousDay = calendar.date(byAdding: .day, value: -1, to: viewModel.selectedDate) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        viewModel.selectDate(previousDay)
                     }
                 }
-                .padding(.horizontal, 10)
+            }) {
+                Image(systemName: "chevron.left")
+                    .font(.title3)
+                    .foregroundColor(Color.calendarDarkBlue.opacity(0.3))
+                    .frame(width: 44, height: 44)
+            }
+            
+            Spacer()
+            
+            // Día seleccionado
+            VStack(spacing: 4) {
+                Text(dayName)
+                    .font(.headline)
+                    .foregroundColor(Color.calendarDarkBlue)
+                
+                Text(dayNumber)
+                    .font(.title)
+                    .fontWeight(isToday ? .bold : .semibold)
+                    .foregroundColor(Color.calendarDarkBlue)
+            }
+            
+            Spacer()
+            
+            // Navegación: Día siguiente (color tenue)
+            Button(action: {
+                if let nextDay = calendar.date(byAdding: .day, value: 1, to: viewModel.selectedDate) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        viewModel.selectDate(nextDay)
+                    }
+                }
+            }) {
+                Image(systemName: "chevron.right")
+                    .font(.title3)
+                    .foregroundColor(Color.calendarDarkBlue.opacity(0.3))
+                    .frame(width: 44, height: 44)
             }
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 16)
         .background(
             Rectangle()
-                .fill(.ultraThinMaterial)
-                .overlay(
+                .fill(Color.calendarMint.opacity(0.3))
+                .background(
                     Rectangle()
-                        .fill(Color.calendarWhite.opacity(0.1))
+                        .fill(.thinMaterial)
+                        .opacity(0.5)
                 )
         )
         .overlay(
@@ -169,252 +193,163 @@ struct ModernDaysHeader: View {
                 .frame(height: 1),
             alignment: .bottom
         )
-    }
-}
-
-/// Item individual para cada día en el header
-struct ModernDayHeaderItem: View {
-    let date: Date
-    let isSelected: Bool
-    let onTap: () -> Void
-    
-    private let calendar = Calendar.current
-    
-    private var dayName: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEE"
-        return formatter.string(from: date)
-    }
-    
-    private var dayNumber: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d"
-        return formatter.string(from: date)
-    }
-    
-    private var isToday: Bool {
-        calendar.isDateInToday(date)
-    }
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(dayName)
-                .font(.caption)
-                .foregroundColor(Color.calendarDarkBlue.opacity(0.7))
-            
-            Text(dayNumber)
-                .font(.title3)
-                .fontWeight(isToday ? .bold : .medium)
-                .foregroundColor(isToday ? .white : Color.calendarDarkBlue)
-                .frame(width: 28, height: 28)
-                .background(
-                    Circle()
-                        .fill(isToday ? Color.red : (isSelected ? Color.calendarMint.opacity(0.3) : Color.clear))
-                )
-        }
-        .frame(maxWidth: .infinity)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onTap()
-        }
-    }
-}
-
-/// Grid scrolleable bidireccional
-struct ModernScrollableCalendarGrid: View {
-    @ObservedObject var viewModel: CalendarViewModel
-    let hours: [Int]
-    let hourHeight: CGFloat
-    
-    var body: some View {
-        ScrollView([.horizontal, .vertical], showsIndicators: false) {
-            HStack(spacing: 0) {
-                // Columna de horas (fija)
-                ModernHourLabels(
-                    hours: hours,
-                    hourHeight: hourHeight
-                )
-                
-                // Grid de días scrolleable
-                HStack(spacing: 0) {
-                    ForEach(viewModel.currentDisplayDays, id: \.self) { day in
-                        ModernDayColumn(
-                            day: day,
-                            hours: hours,
-                            hourHeight: hourHeight,
-                            viewModel: viewModel
-                        )
-                        .frame(width: 100) // Ancho fijo para cada columna de día
+        .offset(x: dragOffset)
+        .gesture(
+            DragGesture()
+                .onChanged { gesture in
+                    dragOffset = gesture.translation.width
+                }
+                .onEnded { gesture in
+                    let threshold: CGFloat = 50
+                    
+                    if gesture.translation.width > threshold {
+                        // Swipe derecha -> día anterior
+                        if let previousDay = calendar.date(byAdding: .day, value: -1, to: viewModel.selectedDate) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                viewModel.selectDate(previousDay)
+                            }
+                        }
+                    } else if gesture.translation.width < -threshold {
+                        // Swipe izquierda -> día siguiente
+                        if let nextDay = calendar.date(byAdding: .day, value: 1, to: viewModel.selectedDate) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                viewModel.selectDate(nextDay)
+                            }
+                        }
+                    }
+                    
+                    // Reset offset
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        dragOffset = 0
                     }
                 }
-            }
-        }
-    }
-}
-
-/// Etiquetas de horas modernas
-struct ModernHourLabels: View {
-    let hours: [Int]
-    let hourHeight: CGFloat
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // "All-day" row
-            Text("All-day")
-                .font(.caption)
-                .foregroundColor(Color.calendarDarkBlue.opacity(0.7))
-                .frame(width: 60, height: 40, alignment: .leading)
-                .padding(.leading, 8)
-            
-            // Hour labels
-            ForEach(hours, id: \.self) { hour in
-                ModernHourLabel(
-                    hour: hour,
-                    height: hourHeight
-                )
-            }
-        }
-    }
-}
-
-/// Etiqueta individual de hora moderna
-struct ModernHourLabel: View {
-    let hour: Int
-    let height: CGFloat
-    
-    private var hourString: String {
-        if hour == 0 {
-            return "12AM"
-        } else if hour < 12 {
-            return "\(hour)AM"
-        } else if hour == 12 {
-            return "12PM"
-        } else {
-            return "\(hour - 12)PM"
-        }
-    }
-    
-    var body: some View {
-        VStack {
-            HStack {
-                Text(hourString)
-                    .font(.caption)
-                    .foregroundColor(Color.calendarDarkBlue.opacity(0.7))
-                    .frame(width: 50, alignment: .leading)
-                    .padding(.leading, 8)
-                
-                Spacer()
-            }
-            
-            Spacer()
-        }
-        .frame(width: 60, height: height)
-        .overlay(
-            Rectangle()
-                .fill(Color.calendarDarkBlue.opacity(0.1))
-                .frame(height: 1),
-            alignment: .bottom
         )
     }
 }
 
-/// Columna de día moderna
-struct ModernDayColumn: View {
-    let day: Date
-    let hours: [Int]
-    let hourHeight: CGFloat
-    @ObservedObject var viewModel: CalendarViewModel
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // All-day section
-            Rectangle()
-                .fill(Color.clear)
-                .frame(height: 40)
-                .overlay(
-                    Rectangle()
-                        .fill(Color.calendarDarkBlue.opacity(0.1))
-                        .frame(height: 1),
-                    alignment: .bottom
-                )
-            
-            // Hour slots
-            ForEach(hours, id: \.self) { hour in
-                ModernTimeSlot(
-                    hour: hour,
-                    day: day,
-                    events: viewModel.getEvents(for: day, hour: hour)
-                )
-                .frame(height: hourHeight)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .overlay(
-            Rectangle()
-                .fill(Color.calendarDarkBlue.opacity(0.1))
-                .frame(width: 1),
-            alignment: .trailing
-        )
-    }
-}
-
-/// Slot de tiempo moderno
-struct ModernTimeSlot: View {
-    let hour: Int
-    let day: Date
+/// Lista vertical de eventos ordenados cronológicamente
+struct EventsList: View {
     let events: [CalendarEvent]
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(Color.clear)
-                .overlay(
-                    Rectangle()
-                        .fill(Color.calendarDarkBlue.opacity(0.1))
-                        .frame(height: 1),
-                    alignment: .bottom
-                )
-            
-            // Events (si los hay)
-            VStack(spacing: 2) {
-                ForEach(events) { event in
-                    ModernEventCard(event: event)
+        ScrollView(.vertical, showsIndicators: true) {
+            if events.isEmpty {
+                // Mensaje cuando no hay eventos
+                VStack(spacing: 16) {
+                    Spacer()
+                        .frame(height: 60)
+                    
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 60))
+                        .foregroundColor(Color.calendarDarkBlue.opacity(0.3))
+                    
+                    Text("No events scheduled")
+                        .font(.title3)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color.calendarDarkBlue.opacity(0.7))
+                    
+                    Text("Enjoy your free day")
+                        .font(.callout)
+                        .foregroundColor(Color.calendarDarkBlue.opacity(0.5))
+                    
+                    Spacer()
                 }
-                Spacer()
+                .frame(maxWidth: .infinity)
+            } else {
+                // Lista de eventos
+                LazyVStack(spacing: 12) {
+                    ForEach(events) { event in
+                        EventListCard(event: event)
+                            .padding(.horizontal, 16)
+                    }
+                }
+                .padding(.vertical, 16)
             }
-            .padding(.horizontal, 4)
-            .padding(.vertical, 2)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            // TODO: BACKEND - Crear evento en este slot
-            print("📅 Tapped slot: \(hour):00 on \(day)")
         }
     }
 }
 
-/// Tarjeta de evento moderna
-struct ModernEventCard: View {
+/// Tarjeta de evento en la lista
+struct EventListCard: View {
     let event: CalendarEvent
     
+    private var timeString: String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: event.startDate)
+    }
+    
+    private var durationString: String {
+        let hours = Int(event.duration / 3600)
+        let minutes = Int((event.duration.truncatingRemainder(dividingBy: 3600)) / 60)
+        
+        if hours > 0 && minutes > 0 {
+            return "\(hours)h \(minutes)m"
+        } else if hours > 0 {
+            return "\(hours)h"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
     var body: some View {
-        HStack(spacing: 6) {
-            Text(event.title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(.white)
-                .lineLimit(1)
+        HStack(spacing: 16) {
+            // Hora del evento
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(timeString)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color.calendarDarkBlue)
+                
+                Text(durationString)
+                    .font(.caption)
+                    .foregroundColor(Color.calendarDarkBlue.opacity(0.6))
+            }
+            .frame(width: 70, alignment: .trailing)
+            
+            // Barra lateral de color según el tipo de evento
+            Rectangle()
+                .fill(event.source.color)
+                .frame(width: 4)
+                .cornerRadius(2)
+            
+            // Contenido del evento
+            VStack(alignment: .leading, spacing: 6) {
+                Text(event.title)
+                    .font(.body)
+                    .fontWeight(.medium)
+                    .foregroundColor(Color.calendarDarkBlue)
+                
+                if let location = event.location {
+                    HStack(spacing: 4) {
+                        Image(systemName: "location.fill")
+                            .font(.caption)
+                        Text(location)
+                            .font(.caption)
+                    }
+                    .foregroundColor(Color.calendarDarkBlue.opacity(0.6))
+                }
+                
+                if let notes = event.notes {
+                    Text(notes)
+                        .font(.caption)
+                        .foregroundColor(Color.calendarDarkBlue.opacity(0.5))
+                        .lineLimit(2)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
             
             Spacer()
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(event.source.color.opacity(0.8))
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+                .shadow(color: Color.calendarDarkBlue.opacity(0.1), radius: 4, x: 0, y: 2)
         )
     }
 }
+
 
 /// Selector de mes y año
 struct MonthYearPicker: View {
@@ -518,78 +453,11 @@ struct MonthYearPicker: View {
     }
 }
 
-/// Botón flotante para añadir eventos
-struct AddEventFloatingButton: View {
-    @State private var showAddEvent = false
-    
-    var body: some View {
-        Button(action: { showAddEvent = true }) {
-            Image(systemName: "plus")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-                .frame(width: 56, height: 56)
-                .background(
-                    Circle()
-                        .fill(Color.calendarDarkBlue)
-                        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                )
-        }
-        .sheet(isPresented: $showAddEvent) {
-            AddEventSheet(isPresented: $showAddEvent)
-        }
-    }
-}
-
-/// Sheet para añadir eventos (placeholder)
-struct AddEventSheet: View {
-    @Binding var isPresented: Bool
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Text("Add New Event")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color.calendarDarkBlue)
-                
-                Text("Event creation functionality will be implemented with backend integration.")
-                    .font(.body)
-                    .foregroundColor(Color.calendarDarkBlue.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding()
-                
-                Spacer()
-            }
-            .padding()
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        isPresented = false
-                    }
-                    .foregroundColor(Color.calendarDarkBlue)
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        // TODO: BACKEND - Implementar creación de eventos
-                        isPresented = false
-                    }
-                    .foregroundColor(Color.calendarDarkBlue)
-                    .fontWeight(.semibold)
-                }
-            }
-        }
-        .presentationDetents([.height(300)])
-        .presentationDragIndicator(.visible)
-    }
-}
-
 // MARK: - Preview
 
 #Preview("Modern Calendar View") {
-    ModernCalendarView(viewModel: CalendarViewModel())
+    @Previewable @StateObject var viewModel = CalendarViewModel()
+    ModernCalendarView(viewModel: viewModel)
         .background(
             LinearGradient(
                 gradient: Gradient(colors: [
@@ -604,22 +472,19 @@ struct AddEventSheet: View {
         )
 }
 
-#Preview("Modern Calendar Header") {
-    VStack {
-        ModernCalendarHeader(viewModel: CalendarViewModel())
-        ModernDaysHeader(viewModel: CalendarViewModel())
-        Spacer()
-    }
-    .background(
-        LinearGradient(
-            gradient: Gradient(colors: [
-                Color.calendarDarkBlue,
-                Color.calendarLightBlue,
-                Color.calendarMint,
-                Color.calendarWhite
-            ]),
-            startPoint: .bottomLeading,
-            endPoint: .topTrailing
+#Preview("Calendar with Events") {
+    @Previewable @StateObject var viewModel = CalendarViewModel()
+    ModernCalendarView(viewModel: viewModel)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.calendarDarkBlue,
+                    Color.calendarLightBlue,
+                    Color.calendarMint,
+                    Color.calendarWhite
+                ]),
+                startPoint: .bottomLeading,
+                endPoint: .topTrailing
+            )
         )
-    )
 }

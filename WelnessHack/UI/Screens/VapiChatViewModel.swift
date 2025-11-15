@@ -1,8 +1,9 @@
 import Foundation
 import SwiftUI
 import Combine
+import ElevenLabs
 
-/// ViewModel para manejar el estado y lógica del VapiChatScreen
+/// ViewModel para manejar el estado y lógica del chat con ElevenLabs
 @MainActor
 class VapiChatViewModel: ObservableObject {
     
@@ -20,7 +21,7 @@ class VapiChatViewModel: ObservableObject {
     /// Estado actual de la conversación
     @Published var chatState: ChatState = .idle
     
-    /// Mensajes de la conversación (para futuras implementaciones)
+    /// Mensajes de la conversación
     @Published var messages: [ChatMessage] = []
     
     /// Texto del estado de conexión para mostrar al usuario
@@ -35,27 +36,61 @@ class VapiChatViewModel: ObservableObject {
     /// Mensaje de error para mostrar
     @Published var errorMessage: String = ""
     
+    /// Indica si está en modo onboarding
+    @Published var isOnboarding: Bool = false
+    
+    /// Mensaje de onboarding actual
+    @Published var onboardingMessage: String = ""
+    
     // MARK: - Private Properties
     
+    private let elevenLabsClient = ElevenLabsClient()
+    private let healthKitManager = HealthKitManager.shared
+    private let bodyBatteryCalculator = BodyBatteryCalculator()
+    private let onboardingManager = OnboardingManager.shared
     private var cancellables = Set<AnyCancellable>()
-    
-    // TODO: BACKEND - Agregar VapiClient cuando se implemente
-    // private var vapiClient: VapiClient?
-    
-    // TODO: BACKEND - Agregar AudioManager para manejar el micrófono
-    // private var audioManager: AudioManager?
     
     // MARK: - Initialization
     
     init() {
-        setupMockData()
+        setupObservers()
+        checkOnboardingStatus()
     }
     
-    // MARK: - Mock Data (Para UI Testing)
+    // MARK: - Setup
     
-    private func setupMockData() {
-        // Avatar placeholder
-        avatarImageURL = nil // Cuando se implemente, usar URL real
+    private func setupObservers() {
+        // Observe ElevenLabs client state
+        elevenLabsClient.$isConnected
+            .sink { [weak self] connected in
+                self?.isConnected = connected
+                self?.connectionStatusText = connected ? "Conectado" : "Desconectado"
+            }
+            .store(in: &cancellables)
+        
+        elevenLabsClient.$agentState
+            .sink { [weak self] state in
+                self?.isBotSpeaking = (state == .speaking)
+                self?.chatState = (state == .speaking) ? .botSpeaking : .listening
+            }
+            .store(in: &cancellables)
+        
+        elevenLabsClient.$messages
+            .sink { [weak self] elevenLabsMessages in
+                self?.updateMessages(from: elevenLabsMessages)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateMessages(from elevenLabsMessages: [ConversationMessage]) {
+        messages = elevenLabsMessages.map { message in
+            ChatMessage(
+                id: UUID(),
+                text: message.content,
+                isUser: message.role == .user,
+                timestamp: Date()
+            )
+        }
     }
     
     // MARK: - Public Methods
@@ -74,62 +109,48 @@ class VapiChatViewModel: ObservableObject {
         chatState = .connecting
         connectionStatusText = "Conectando..."
         
-        // TODO: BACKEND - Implementar conexión con Vapi
-        /*
         do {
-            // 1. Configurar permisos de audio
-            try await requestMicrophonePermission()
+            let context: ConversationContext
             
-            // 2. Inicializar VapiClient
-            vapiClient = VapiClient(
-                publicKey: VapiConfig.publicKey,
-                assistantId: VapiConfig.assistantId
-            )
-            
-            // 3. Configurar callbacks
-            vapiClient?.onSpeechStart = { [weak self] in
-                Task { @MainActor in
-                    self?.isBotSpeaking = true
-                }
+            // Verificar si es primera vez (onboarding)
+            if !onboardingManager.isOnboardingComplete {
+                // Modo onboarding - usar contexto especial
+                context = ConversationContext.createForOnboarding()
+                isOnboarding = true
+                onboardingMessage = onboardingManager.getOnboardingPrompt()
+                print("🎯 Iniciando onboarding conversacional")
+            } else {
+                // Modo normal - obtener datos de salud
+                let sleepData = try? await healthKitManager.fetchLastNightSleep()
+                let hrvAverage = try? await healthKitManager.fetchAverageHRV()
+                let activityData = try? await healthKitManager.fetchActivitySummary()
+                
+                let bodyBattery = bodyBatteryCalculator.calculateBodyBattery(
+                    sleepData: sleepData,
+                    hrvAverage: hrvAverage,
+                    activityData: activityData
+                )
+                
+                context = await ConversationContext.create(
+                    from: bodyBattery,
+                    sleepData: sleepData,
+                    activityData: activityData
+                )
+                
+                print("🎤 Sesión de chat normal iniciada")
+                print("📊 Body Battery: \(bodyBattery.score)/100")
             }
             
-            vapiClient?.onSpeechEnd = { [weak self] in
-                Task { @MainActor in
-                    self?.isBotSpeaking = false
-                }
-            }
+            // Iniciar conversación con ElevenLabs
+            try await elevenLabsClient.startConversation(with: context)
             
-            vapiClient?.onTranscript = { [weak self] text in
-                Task { @MainActor in
-                    self?.addMessage(text: text, isUser: false)
-                }
-            }
-            
-            vapiClient?.onError = { [weak self] error in
-                Task { @MainActor in
-                    self?.handleError(error)
-                }
-            }
-            
-            // 4. Iniciar sesión
-            try await vapiClient?.startSession()
-            
-            // 5. Actualizar UI
-            isConnected = true
+            // Actualizar UI
             chatState = .listening
-            connectionStatusText = "Conectado - Habla ahora"
+            connectionStatusText = isOnboarding ? "Onboarding - Habla conmigo" : "Conectado - Habla ahora"
             
         } catch {
             handleError(error)
         }
-        */
-        
-        // MOCK: Simular conexión exitosa para probar UI
-        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 segundo
-        isConnected = true
-        chatState = .listening
-        connectionStatusText = "Conectado - Habla ahora"
-        print("🎤 [MOCK] Sesión de chat iniciada")
     }
     
     /// Finaliza la sesión de chat actual
@@ -137,32 +158,31 @@ class VapiChatViewModel: ObservableObject {
         chatState = .disconnecting
         connectionStatusText = "Desconectando..."
         
-        // TODO: BACKEND - Implementar desconexión
-        /*
+        await elevenLabsClient.endConversation()
+        
+        // Limpiar estado
+        chatState = .idle
+        connectionStatusText = "Desconectado"
+        
+        print("🔌 Sesión de chat finalizada")
+    }
+    
+    /// Envía un mensaje de texto al agente
+    func sendMessage(_ text: String) async {
         do {
-            try await vapiClient?.endSession()
-            vapiClient = nil
-            
-            // Limpiar estado
-            isConnected = false
-            isBotSpeaking = false
-            isUserSpeaking = false
-            chatState = .idle
-            connectionStatusText = "Desconectado"
-            
+            try await elevenLabsClient.sendMessage(text)
         } catch {
             handleError(error)
         }
-        */
-        
-        // MOCK: Simular desconexión
-        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 segundos
-        isConnected = false
-        isBotSpeaking = false
-        isUserSpeaking = false
-        chatState = .idle
-        connectionStatusText = "Desconectado"
-        print("🔌 [MOCK] Sesión de chat finalizada")
+    }
+    
+    /// Alterna el estado del micrófono (mute/unmute)
+    func toggleMute() async {
+        do {
+            try await elevenLabsClient.toggleMute()
+        } catch {
+            handleError(error)
+        }
     }
     
     /// Simula que el bot empieza a hablar (para testing UI)
@@ -178,48 +198,35 @@ class VapiChatViewModel: ObservableObject {
         }
     }
     
-    /// Simula que el usuario empieza a hablar (para testing UI)
-    func simulateUserSpeaking() {
-        isUserSpeaking = true
-        chatState = .userSpeaking
-        
-        // Detener después de 2 segundos
-        Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
-            isUserSpeaking = false
-            chatState = .listening
+    // MARK: - Onboarding Methods
+    
+    private func checkOnboardingStatus() {
+        isOnboarding = !onboardingManager.isOnboardingComplete
+        if isOnboarding {
+            onboardingMessage = onboardingManager.getOnboardingPrompt()
+            print("👋 Usuario nuevo - Onboarding requerido")
+        } else {
+            print("✅ Usuario existente - Onboarding completado")
+        }
+    }
+    
+    func completeOnboarding() {
+        Task { @MainActor in
+            onboardingManager.completeOnboarding()
+            isOnboarding = false
+            onboardingMessage = ""
+            print("🎉 Onboarding completado!")
+        }
+    }
+    
+    func resetOnboarding() {
+        Task { @MainActor in
+            onboardingManager.resetOnboarding()
+            checkOnboardingStatus()
         }
     }
     
     // MARK: - Private Methods
-    
-    private func requestMicrophonePermission() async throws {
-        // TODO: BACKEND - Implementar solicitud de permisos
-        /*
-        import AVFoundation
-        
-        let status = AVAudioSession.sharedInstance().recordPermission
-        
-        if status == .undetermined {
-            let granted = await AVAudioSession.sharedInstance().requestRecordPermission()
-            if !granted {
-                throw VapiError.microphonePermissionDenied
-            }
-        } else if status == .denied {
-            throw VapiError.microphonePermissionDenied
-        }
-        */
-    }
-    
-    private func addMessage(text: String, isUser: Bool) {
-        let message = ChatMessage(
-            id: UUID(),
-            text: text,
-            isUser: isUser,
-            timestamp: Date()
-        )
-        messages.append(message)
-    }
     
     private func handleError(_ error: Error) {
         errorMessage = error.localizedDescription
@@ -253,37 +260,40 @@ struct ChatMessage: Identifiable {
     let timestamp: Date
 }
 
-// MARK: - TODO: Backend Implementation Notes
+// MARK: - ElevenLabs Integration Notes
 
 /*
- BACKEND PENDIENTE - Implementaciones necesarias:
+ ✅ INTEGRACIÓN COMPLETA CON ELEVENLABS
  
- 1. VapiClient.swift
-    - Integración con Vapi SDK o API REST
-    - Manejo de WebSocket para streaming de audio
-    - Callbacks: onConnect, onDisconnect, onSpeechStart, onSpeechEnd, onTranscript, onError
-    - Métodos: startSession(), endSession(), sendAudio()
+ El ViewModel ahora usa ElevenLabsClient que proporciona:
  
- 2. VapiConfig.swift
-    - Configuración de llaves API
-    - public static let publicKey = ProcessInfo.env("VAPI_PUBLIC_KEY")
-    - public static let assistantId = ProcessInfo.env("VAPI_ASSISTANT_ID")
+ 1. ✅ Conexión con ElevenLabs Agent API
+    - SDK oficial de ElevenLabs v2.0
+    - Manejo automático de WebRTC para audio
+    - Estados reactivos (@Published)
  
- 3. AudioManager.swift
-    - Captura de audio del micrófono
-    - Detección de amplitud para waveform
-    - Conversión de audio a formato requerido por Vapi
-    - Manejo de AVAudioSession
+ 2. ✅ Client Tools implementadas:
+    - get_current_energy_score
+    - get_energy_forecast
+    - get_sleep_analysis
+    - get_activity_summary
+    - recommend_actions
  
- 4. Permisos en Info.plist:
+ 3. ✅ Contexto de conversación:
+    - Body Battery score actual
+    - Datos de sueño, HRV y actividad
+    - Información temporal (hora del día, día de semana)
+ 
+ 4. ✅ Configuración:
+    - Variables de entorno en .env
+    - ELEVENLABS_API_KEY
+    - ELEVENLABS_AGENT_ID
+ 
+ 5. ✅ Permisos configurados:
     - NSMicrophoneUsageDescription
-    - Descripción: "Necesitamos acceso al micrófono para hablar con el chatbot"
+    - NSHealthShareUsageDescription
+    - NSHealthUpdateUsageDescription
  
- 5. Instalación de SDK:
-    - Agregar dependencia de Vapi iOS SDK
-    - O implementar cliente REST/WebSocket personalizado
- 
- 6. Variables de entorno (.env):
-    - VAPI_PUBLIC_KEY=tu_public_key
-    - VAPI_ASSISTANT_ID=tu_assistant_id
+ Para configurar el agente en ElevenLabs:
+ - Ver docs/ELEVENLABS_SETUP.md
  */
