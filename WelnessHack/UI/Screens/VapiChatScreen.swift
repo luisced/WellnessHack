@@ -121,7 +121,7 @@ struct VapiChatScreen: View {
                         }
                     }
                 }
-                .padding(.bottom, 100) // Espacio para la tab bar
+                .padding(.bottom, 20) // MainTabView maneja el espacio para la tab bar
             }
         }
         .alert("Error", isPresented: $viewModel.showError) {

@@ -8,16 +8,14 @@ struct ChartsScreen: View {
     
     var body: some View {
         ZStack {
-            // Background with calendar gradient
+            // Background with inverted diagonal gradient
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.calendarDarkBlue,     // 1C2B3A - Azul fuerte (inferior izquierda)
-                    Color.calendarLightBlue,    // 456B8C - Azul leve (transición suave)
-                    Color.calendarMint,         // A2D9CE - Menta (centro expandido)
-                    Color.calendarWhite         // EBEFF5 - Blanco (superior derecha)
-                ]),
-                startPoint: .bottomLeading,
-                endPoint: .topTrailing
+                colors: [
+                    Color(hex: "87CEEB"), // Azul claro (superior izquierda)
+                    Color.calendarMint    // Menta (inferior derecha)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
             .ignoresSafeArea(.all)
             

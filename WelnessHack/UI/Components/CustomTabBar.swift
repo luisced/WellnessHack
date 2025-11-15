@@ -23,19 +23,9 @@ struct CustomTabBar: View {
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 12)
-        .background(
-            // Fondo verde menta cristalino PURO (sin material gris)
-            Capsule()
-                .fill(Color.calendarMint.opacity(0.3))
-                .background(
-                    Capsule()
-                        .fill(.thinMaterial)
-                        .opacity(0.5)
-                )
-                .shadow(color: Color.calendarMint.opacity(0.4), radius: 25, x: 0, y: -8)
-        )
+        .background(Color.clear) // Fondo completamente transparente
         .padding(.horizontal, 40) // Más compacta
-        .padding(.bottom, 4) // Más pegada al borde inferior
+        .padding(.bottom, 8) // Altura consistente en todas las pantallas
         .drawingGroup() // Mejora performance de animaciones con Metal rendering
     }
     
@@ -101,12 +91,6 @@ extension CustomTabBar {
                 screen: .vapi
             ),
             TabItem(
-                title: "Focus",
-                icon: "clock.fill",
-                color: Color.calendarDarkBlue,
-                screen: .focus
-            ),
-            TabItem(
                 title: "Calendar",
                 icon: "calendar",
                 color: Color.calendarDarkBlue,
@@ -117,6 +101,12 @@ extension CustomTabBar {
                 icon: "chart.line.uptrend.xyaxis",
                 color: Color.calendarDarkBlue, // Azul fuerte para todos
                 screen: .dashboard
+            ),
+            TabItem(
+                title: "Focus",
+                icon: "clock.fill",
+                color: Color.calendarDarkBlue,
+                screen: .focus
             )
         ]
     }

@@ -34,7 +34,7 @@ struct ContentView_Legacy: View {
                     Label("Calendar", systemImage: "calendar")
                 }
             
-            FocusScreen()
+            FocusScreen(isBreakActive: .constant(false))
                 .tabItem {
                     Label("Focus", systemImage: "timer")
                 }

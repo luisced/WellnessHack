@@ -20,6 +20,7 @@ struct MainTabView: View {
     @State private var selectedTab = 0
     @State private var previousTab = 0
     @State private var gradientColors: [Color] = []
+    @State private var isBreakActive = false
     
     // Swipe gesture states
     @State private var dragOffset: CGFloat = 0
@@ -53,22 +54,25 @@ struct MainTabView: View {
                     .transition(.opacity)
             }
             
-            // Contenido de la pantalla actual
+            // Contenido de la pantalla actual con padding inferior fijo para la tab bar
             screenContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.bottom, isBreakActive ? 0 : 100) // Espacio fijo para la tab bar
                 .offset(x: isDragging ? dragOffset : 0)
                 .gesture(swipeGesture)
             
-            // Custom Tab Bar (sobre todo, respetando safe areas)
-            VStack {
-                Spacer()
-                CustomTabBar(
-                    selectedTab: $selectedTab,
-                    tabs: tabs
-                )
-                .padding(.bottom, 0) // Respeta safe area inferior
+            // Custom Tab Bar con posición absoluta fija
+            if !isBreakActive {
+                VStack {
+                    Spacer()
+                    CustomTabBar(
+                        selectedTab: $selectedTab,
+                        tabs: tabs
+                    )
+                }
+                .ignoresSafeArea(.keyboard)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-            .ignoresSafeArea(.keyboard) // Pero ignora teclado si aparece
         }
         .onChange(of: selectedTab) { oldValue, newValue in
             previousTab = oldValue
@@ -86,13 +90,13 @@ struct MainTabView: View {
                 VapiChatScreen(splashCompleted: splashCompleted)
                     .transition(getSwipeTransition(from: previousTab, to: 0))
             case 1:
-                FocusScreen()
+                CalendarScreen()
                     .transition(getSwipeTransition(from: previousTab, to: 1))
             case 2:
-                CalendarScreen()
+                dashboardScreen
                     .transition(getSwipeTransition(from: previousTab, to: 2))
             case 3:
-                dashboardScreen
+                FocusScreen(isBreakActive: $isBreakActive)
                     .transition(getSwipeTransition(from: previousTab, to: 3))
             default:
                 VapiChatScreen(splashCompleted: splashCompleted)
@@ -275,17 +279,14 @@ struct MainTabView: View {
         switch tab {
         case 0: // VapiChat
             return [Color.vapiGradientStart, Color.vapiGradientEnd]
-        case 1: // FocusScreen (ya tiene su propio gradiente)
+        case 1: // Calendar - gradiente azul a menta
+            return [Color(hex: "87CEEB"), Color.calendarMint]
+        case 2: // Dashboard - gradiente azul a menta (diagonal invertida)
+            return [Color(hex: "87CEEB"), Color.calendarMint]
+        case 3: // FocusScreen (ya tiene su propio gradiente)
             return [Color.focusBackground, Color.focusBlue.opacity(0.3)]
-        case 2, 3: // Calendar y Dashboard
-            return [
-                Color.gradientDarkBlue,
-                Color.gradientMediumBlue,
-                Color.gradientMint,
-                Color.gradientWhite
-            ]
         default:
-            return [Color.white, Color.white]
+            return [Color(hex: "87CEEB"), Color(hex: "87CEEB")]
         }
     }
 }
@@ -325,11 +326,14 @@ struct InterpolatedBackgroundView: View {
         
         // Matriz de colores base por transición direccional
         switch (selectedTab, targetTab) {
-        case (0, 1):  // VapiChat → Focus (swipe left)
+        case (0, 1):  // VapiChat → Calendar (swipe left)
             return Color(red: 0.37, green: 0.72, blue: 0.84)  // #5FB8D7 - Azul celeste vibrante
             
-        case (1, 0):  // Focus → VapiChat (swipe right)
+        case (1, 0):  // Calendar → VapiChat (swipe right)
             return Color(red: 0.53, green: 0.81, blue: 0.92)  // #87CEEB - Azul cielo suave
+            
+        case (2, 3), (3, 2):  // Stats ↔ Focus (ambas direcciones)
+            return Color(hex: "87CEEB")  // Color sólido azul claro para transición Stats-Focus
             
         default:
             return Color(red: 0.49, green: 0.77, blue: 0.89)  // #7CC5E3 - Default celeste
@@ -356,23 +360,20 @@ struct InterpolatedBackgroundView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-            case 1: // FocusScreen - usa color base (azul celeste)
-                Color.clear
-            case 2: // Calendar - gradiente menta
+            case 1: // Calendar - gradiente azul a menta
                 LinearGradient(
-                    colors: [
-                        Color.gradientMint,
-                        Color.gradientWhite,
-                        Color.calendarWhite
-                    ],
+                    colors: [Color(hex: "87CEEB"), Color.calendarMint],
                     startPoint: .bottomLeading,
                     endPoint: .topTrailing
                 )
-            case 3: // Dashboard - gradiente completo
-                GradientAnimationUtils.createAnimatedGradient(
-                    isReversed: false,
-                    animationDuration: 1.0
+            case 2: // Dashboard - gradiente azul a menta (diagonal invertida)
+                LinearGradient(
+                    colors: [Color(hex: "87CEEB"), Color.calendarMint],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
+            case 3: // FocusScreen - usa color base (azul celeste)
+                Color.clear
             default:
                 Color.clear
             }
@@ -385,8 +386,11 @@ struct InterpolatedBackgroundView: View {
             let targetTab = getTargetTab()
             
             // Crear gradiente interpolado entre tabs
-            if selectedTab == 1 && targetTab == 2 {
-                // Focus → Calendar: de color sólido a gradiente
+            if (selectedTab == 2 && targetTab == 3) || (selectedTab == 3 && targetTab == 2) {
+                // Stats ↔ Focus: usar color sólido azul claro
+                Color(hex: "87CEEB")
+            } else if selectedTab == 1 && targetTab == 2 {
+                // Calendar → Stats: de color sólido a gradiente
                 LinearGradient(
                     colors: [
                         Color.gradientMint,
@@ -397,7 +401,7 @@ struct InterpolatedBackgroundView: View {
                     endPoint: .topTrailing
                 )
             } else if selectedTab == 2 && targetTab == 1 {
-                // Calendar → Focus: de gradiente a color sólido (fade out)
+                // Stats → Calendar: de gradiente a color sólido (fade out)
                 Color.clear
             } else {
                 // Otras transiciones usan el background del target
@@ -433,25 +437,22 @@ struct AnimatedGradientBackground: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-            case 1: // FocusScreen - usa su propio background
-                Color.clear
-            case 2: // Calendar - gradiente hacia menta
+            case 1: // Calendar - gradiente azul a menta
                 LinearGradient(
-                    colors: [
-                        Color.gradientMint,
-                        Color.gradientWhite,
-                        Color.calendarWhite
-                    ],
+                    colors: [Color(hex: "87CEEB"), Color.calendarMint],
                     startPoint: .bottomLeading,
                     endPoint: .topTrailing
                 )
-            case 3: // Dashboard - gradiente completo
-                GradientAnimationUtils.createAnimatedGradient(
-                    isReversed: false,
-                    animationDuration: 1.0
+            case 2: // Dashboard - gradiente azul a menta (diagonal invertida)
+                LinearGradient(
+                    colors: [Color(hex: "87CEEB"), Color.calendarMint],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
+            case 3: // FocusScreen - usa su propio background
+                Color.clear
             default:
-                Color.white
+                Color(hex: "87CEEB")
             }
         }
         .animation(.easeInOut(duration: 0.8), value: selectedTab) // Opción A: 0.8s smooth

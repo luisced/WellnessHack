@@ -9,12 +9,10 @@ struct CalendarScreen: View {
         ModernCalendarView(viewModel: viewModel)
             .background(
                 LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.calendarDarkBlue,     // 1C2B3A - Azul fuerte (inferior izquierda)
-                        Color.calendarLightBlue,    // 456B8C - Azul leve (transición suave)
-                        Color.calendarMint,         // A2D9CE - Menta (centro expandido)
-                        Color.calendarWhite         // EBEFF5 - Blanco (superior derecha)
-                    ]),
+                    colors: [
+                        Color(hex: "87CEEB"), // Azul claro (inferior izquierda)
+                        Color.calendarMint    // Menta (superior derecha)
+                    ],
                     startPoint: .bottomLeading,
                     endPoint: .topTrailing
                 )

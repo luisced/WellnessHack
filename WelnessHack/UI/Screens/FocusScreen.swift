@@ -4,6 +4,7 @@ import SplineRuntime
 struct FocusScreen: View {
     @StateObject private var viewModel = FocusViewModel()
     @State private var showBreak = false
+    @Binding var isBreakActive: Bool
     var body: some View {
         // MARK: - Content with Spline Background
         
@@ -16,6 +17,7 @@ struct FocusScreen: View {
                 BreakScreen(onBackToMain: {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         showBreak = false
+                        isBreakActive = false
                     }
                 })
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
@@ -33,6 +35,7 @@ struct FocusScreen: View {
                         onBreakRequested: {
                             withAnimation(.easeInOut(duration: 0.5)) {
                                 showBreak = true
+                                isBreakActive = true
                             }
                         }
                     )
@@ -41,10 +44,10 @@ struct FocusScreen: View {
                     
                     Spacer()
                     
-                    // MARK: - Motivational Messages (más abajo)
+                    // MARK: - Motivational Messages
                     MotivationalMessagesView(messages: viewModel.currentMessages)
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 120) // Ajustado para dar espacio a la tab bar
+                        .padding(.bottom, 20) // Ajustado para tab bar fija
                 }
             }
         }
@@ -188,12 +191,12 @@ struct FocusScreen: View {
 // MARK: - Preview
 
 #Preview {
-    FocusScreen()
+    FocusScreen(isBreakActive: .constant(false))
 }
 
 #Preview("Timer Active") {
     let viewModel = FocusViewModel()
-    FocusScreen()
+    FocusScreen(isBreakActive: .constant(false))
         .onAppear {
             viewModel.startFocusSession()
         }
@@ -201,7 +204,7 @@ struct FocusScreen: View {
 
 #Preview("Timer Paused") {
     let viewModel = FocusViewModel()
-    FocusScreen()
+    FocusScreen(isBreakActive: .constant(false))
         .onAppear {
             viewModel.startFocusSession()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

@@ -26,8 +26,8 @@ struct BatteryVectorView: View {
             GeometryReader { geometry in
                 let fillHeight = geometry.size.height * batteryLevel
                 
-                VStack {
-                    Spacer()
+                VStack(spacing: 0) {
+                    Spacer(minLength: 0)
                     
                     // Filled portion
                     batteryShape
@@ -71,8 +71,8 @@ struct BatteryVectorView: View {
                                 )
                                 .frame(height: fillHeight)
                         )
-                        .animation(.easeInOut(duration: 1.0), value: batteryLevel)
                 }
+                .animation(.easeInOut(duration: 1.0), value: batteryLevel)
             }
             .frame(width: 140, height: 240)
             .clipShape(batteryShape)

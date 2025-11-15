@@ -20,12 +20,6 @@ struct BatteryChargingView: View {
                         .font(.system(size: 40, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                     
-                    // Estado actual del nivel
-                    Text(batteryStatusText)
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.9))
-                        .fixedSize(horizontal: false, vertical: true)
-                    
                     // MARK: - Take Break Button
                     takeBreakButton
                 }
@@ -87,11 +81,6 @@ struct BatteryChargingView: View {
                 }
             }
             .frame(height: 20)
-            
-            // Status text
-            Text(batteryStatusText)
-                .font(.subheadline)
-                .foregroundColor(.white.opacity(0.9))
         }
         .padding(.horizontal, 10)
     }
@@ -104,11 +93,11 @@ struct BatteryChargingView: View {
                 Image(systemName: "cup.and.saucer.fill")
                     .font(.system(size: 18))
                 
-                Text("Tomar un Break")
+                Text("Break")
                     .font(.system(size: 16, weight: .semibold))
             }
             .foregroundColor(.white)
-            .padding(.horizontal, 15)
+            .padding(.horizontal, 35)
             .padding(.vertical, 12)
             .background(
                 LinearGradient(
