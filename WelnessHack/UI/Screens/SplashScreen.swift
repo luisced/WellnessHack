@@ -5,6 +5,7 @@ struct SplashScreen: View {
     @Binding var isActive: Bool
     @State private var opacity: Double = 1.0
     @State private var scale: CGFloat = 0.8
+    @State private var offsetY: CGFloat = 0
     
     var body: some View {
         ZStack {
@@ -32,7 +33,7 @@ struct SplashScreen: View {
             VStack(spacing: 40) {
                 Spacer()
                 
-                // Spline 3D Robot centrado
+                // Spline 3D Robot centrado y más abajo
                 if let url = Bundle.main.url(
                     forResource: "rememberall_robot_copy",
                     withExtension: "splineswift"
@@ -40,7 +41,7 @@ struct SplashScreen: View {
                     SplineView(sceneFileURL: url)
                         .frame(width: 300, height: 300)
                         .scaleEffect(scale)
-                        .offset(y: 20) // Más abajo para que se note el movimiento hacia arriba
+                        .offset(y: 80 + offsetY) // Mucho más abajo para transición evidente
                 } else {
                     // Fallback si no se encuentra el archivo
                     Circle()
@@ -89,6 +90,7 @@ struct SplashScreen: View {
                 withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                     opacity = 0.0
                     scale = 0.7 // Escala más pequeña para transición más dramática
+                    offsetY = -80 // Mover hacia arriba mientras desaparece
                 }
                 
                 // Marcar como inactivo después de la animación

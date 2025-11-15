@@ -9,7 +9,7 @@ struct AvatarView: View {
     
     @State private var isGlowing = false
     @State private var scale: CGFloat = 0.7
-    @State private var offsetY: CGFloat = 20
+    @State private var offsetY: CGFloat = 60
     @State private var opacity: Double = 0.0
     
     var body: some View {
