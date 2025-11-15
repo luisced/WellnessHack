@@ -5,8 +5,8 @@ class OnboardingManager: ObservableObject {
     
     // MARK: - Published Properties
     
-    @Published var userProfile: UserProfile
-    @Published var isOnboardingComplete: Bool
+    @Published var userProfile: UserProfile = UserProfile()
+    @Published var isOnboardingComplete: Bool = false
     @Published var currentStep: OnboardingStep = .welcome
     
     // MARK: - Private Properties
@@ -27,9 +27,6 @@ class OnboardingManager: ObservableObject {
            let profile = try? JSONDecoder().decode(UserProfile.self, from: data) {
             self.userProfile = profile
             self.isOnboardingComplete = profile.onboardingCompleted
-        } else {
-            self.userProfile = UserProfile()
-            self.isOnboardingComplete = false
         }
     }
     

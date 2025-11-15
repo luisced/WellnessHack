@@ -211,15 +211,19 @@ class VapiChatViewModel: ObservableObject {
     }
     
     func completeOnboarding() {
-        onboardingManager.completeOnboarding()
-        isOnboarding = false
-        onboardingMessage = ""
-        print("🎉 Onboarding completado!")
+        Task { @MainActor in
+            onboardingManager.completeOnboarding()
+            isOnboarding = false
+            onboardingMessage = ""
+            print("🎉 Onboarding completado!")
+        }
     }
     
     func resetOnboarding() {
-        onboardingManager.resetOnboarding()
-        checkOnboardingStatus()
+        Task { @MainActor in
+            onboardingManager.resetOnboarding()
+            checkOnboardingStatus()
+        }
     }
     
     // MARK: - Private Methods
