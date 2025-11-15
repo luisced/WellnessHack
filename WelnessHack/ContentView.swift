@@ -6,13 +6,14 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             // Pantalla principal
-            MainTabView()
+            MainTabView(splashCompleted: !showSplash)
+                .zIndex(0)
             
             // Pantalla de carga superpuesta
             if showSplash {
                 SplashScreen(isActive: $showSplash)
                     .transition(.opacity)
-                    .zIndex(1)
+                    .zIndex(2)
             }
         }
     }

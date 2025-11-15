@@ -8,17 +8,26 @@ struct SplashScreen: View {
     
     var body: some View {
         ZStack {
-            // Fondo degradado
-            LinearGradient(
-                colors: [
-                    Color(red: 0.05, green: 0.05, blue: 0.15),
-                    Color(red: 0.1, green: 0.05, blue: 0.2),
-                    Color.black
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Fondo Spline abstracto animado
+            if let url = Bundle.main.url(
+                forResource: "abstract_gradient_background_copy",
+                withExtension: "splineswift"
+            ) {
+                SplineView(sceneFileURL: url)
+                    .ignoresSafeArea()
+            } else {
+                // Fallback gradient si no se encuentra el archivo
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.05, green: 0.05, blue: 0.15),
+                        Color(red: 0.1, green: 0.05, blue: 0.2),
+                        Color.black
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+            }
             
             VStack(spacing: 40) {
                 Spacer()
@@ -75,8 +84,8 @@ struct SplashScreen: View {
                 scale = 1.0
             }
             
-            // Esperar 2.5 segundos y luego desvanecer
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            // Esperar 4 segundos y luego desvanecer
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
                 withAnimation(.easeInOut(duration: 1.0)) {
                     opacity = 0.0
                     scale = 1.1

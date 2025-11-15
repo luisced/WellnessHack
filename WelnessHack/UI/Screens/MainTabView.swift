@@ -15,6 +15,8 @@ enum TransitionType {
 // MARK: - Main Tab View
 
 struct MainTabView: View {
+    let splashCompleted: Bool
+    
     @State private var selectedTab = 0
     @State private var previousTab = 0
     @State private var gradientColors: [Color] = []
@@ -81,7 +83,7 @@ struct MainTabView: View {
         Group {
             switch selectedTab {
             case 0:
-                VapiChatScreen()
+                VapiChatScreen(splashCompleted: splashCompleted)
                     .transition(getSwipeTransition(from: previousTab, to: 0))
             case 1:
                 FocusScreen()
@@ -459,11 +461,11 @@ struct AnimatedGradientBackground: View {
 // MARK: - Preview
 
 #Preview {
-    MainTabView()
+    MainTabView(splashCompleted: true)
 }
 
 #Preview("Tab 1 - VapiChat") {
-    MainTabView()
+    MainTabView(splashCompleted: true)
         .onAppear {
             // Show VapiChat by default
         }
@@ -471,15 +473,15 @@ struct AnimatedGradientBackground: View {
 
 #Preview("Tab 2 - Focus") {
     @Previewable @State var selectedTab = 1
-    MainTabView()
+    MainTabView(splashCompleted: true)
 }
 
 #Preview("Tab 3 - Calendar") {
     @Previewable @State var selectedTab = 2
-    MainTabView()
+    MainTabView(splashCompleted: true)
 }
 
 #Preview("Tab 4 - Dashboard") {
     @Previewable @State var selectedTab = 3
-    MainTabView()
+    MainTabView(splashCompleted: true)
 }

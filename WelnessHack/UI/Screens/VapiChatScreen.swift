@@ -3,6 +3,8 @@ import SplineRuntime
 import HealthKit
 
 struct VapiChatScreen: View {
+    let splashCompleted: Bool
+    
     @StateObject private var viewModel = VapiChatViewModel()
     @State private var showPermissionsAlert = false
     @State private var permissionsGranted = false
@@ -208,7 +210,18 @@ struct VapiChatScreen: View {
             Text("Necesitamos acceso a tus datos de salud (sueño, HRV, actividad) para calcular tu nivel de energía y darte recomendaciones personalizadas.")
         }
         .task {
-            await checkAndRequestPermissions()
+            // Solo solicitar permisos después de que el splash haya terminado
+            if splashCompleted {
+                await checkAndRequestPermissions()
+            }
+        }
+        .onChange(of: splashCompleted) { _, newValue in
+            // Solicitar permisos cuando el splash termine
+            if newValue && !permissionsGranted {
+                Task {
+                    await checkAndRequestPermissions()
+                }
+            }
         }
     }
     
@@ -335,12 +348,12 @@ struct ChatMessageBubble: View {
 // MARK: - Preview
 
 #Preview {
-    VapiChatScreen()
+    VapiChatScreen(splashCompleted: true)
 }
 
 #Preview("Connected - Bot Speaking") {
     let viewModel = VapiChatViewModel()
-    VapiChatScreen()
+    VapiChatScreen(splashCompleted: true)
         .onAppear {
             Task {
                 await viewModel.startChatSession()
@@ -351,7 +364,7 @@ struct ChatMessageBubble: View {
 
 #Preview("Connected - Listening") {
     let viewModel = VapiChatViewModel()
-    VapiChatScreen()
+    VapiChatScreen(splashCompleted: true)
         .onAppear {
             Task {
                 await viewModel.startChatSession()
