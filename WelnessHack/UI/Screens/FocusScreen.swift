@@ -3,7 +3,7 @@ import SplineRuntime
 
 struct FocusScreen: View {
     @StateObject private var viewModel = FocusViewModel()
-    
+    @State private var showBreak = false
     var body: some View {
         // MARK: - Content with Spline Background
         
@@ -19,8 +19,16 @@ struct FocusScreen: View {
                 
                 // MARK: - Clock/Timer Section (centrado en pantalla)
                 Spacer()
+                BatteryChargingView(
+                    batteryLevel: 0.45,
+                    onBreakRequested: {
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            showBreak = true
+                        }
+                    }
+                )
                 
-                centerContentView
+//                centerContentView
                 
                 Spacer()
                 
@@ -80,7 +88,7 @@ struct FocusScreen: View {
     
     private var titleView: some View {
         // Título estático (sin cambios de tamaño)
-        Text("TAKE A BREAK")
+        Text("Body Battery")
             .font(.system(size: 36, weight: .bold, design: .default))
             .foregroundColor(Color.calendarMint.opacity(0.7))
             .tracking(3)

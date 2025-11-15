@@ -136,7 +136,7 @@ struct HealthStatsHeaderView: View {
                 }
                 
                 Divider()
-                    .frame(height: 60)
+                    .frame(height: 30)
                     .background(Color.white.opacity(0.3))
                 
                 VStack(alignment: .leading, spacing: 8) {
