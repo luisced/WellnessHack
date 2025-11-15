@@ -7,6 +7,7 @@ struct BatteryChargingView: View {
     let onBreakRequested: () -> Void
     
     var body: some View {
+
         VStack(spacing: 24) {
             HStack(alignment: .center, spacing: 20) {
                 // MARK: - Vector Battery Animation
@@ -34,6 +35,9 @@ struct BatteryChargingView: View {
             batteryLevelMeter
         }
         .padding(.horizontal, 20)
+
+        Color.clear
+        origin/ui_calendar
     }
     
     // MARK: - Battery Level Meter

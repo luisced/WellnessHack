@@ -114,6 +114,49 @@ struct HealthStatsHeaderView: View {
     
     var body: some View {
         VStack(spacing: 16) {
+            // MARK: - User Avatar
+            ZStack {
+                // Outer circle with gradient border
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.3),
+                                Color.calendarMint.opacity(0.5)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 3
+                    )
+                    .frame(width: 120, height: 120)
+                
+                // Inner background circle
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.2),
+                                Color.calendarMint.opacity(0.15)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 115, height: 115)
+                
+                // White circle for user icon
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 70, height: 70)
+                
+                // User icon
+                Image(systemName: "person.fill")
+                    .font(.system(size: 35))
+                    .foregroundColor(Color.calendarLightBlue.opacity(0.7))
+            }
+            .padding(.bottom, 8)
+            
             // Main score
             HStack(spacing: 20) {
                 VStack {
