@@ -35,9 +35,17 @@ class FocusViewModel: ObservableObject {
     /// Mensaje de error para mostrar
     @Published var errorMessage: String = ""
     
+    /// Battery level (0.0 to 1.0)
+    @Published var batteryLevel: Double = 0.0
+    
+    /// Current body battery snapshot
+    @Published var currentBodyBattery: BodyBatterySnapshot?
+    
     // MARK: - Private Properties
     
     private var cancellables = Set<AnyCancellable>()
+    private let healthKitManager = HealthKitManager.shared
+    private let bodyBatteryCalculator = BodyBatteryCalculator()
     
     // TODO: BACKEND - Agregar FocusTimer cuando se implemente
     // private var focusTimer: FocusTimer?
@@ -53,6 +61,11 @@ class FocusViewModel: ObservableObject {
     init() {
         setupInitialState()
         loadMotivationalMessages()
+        
+        // Load battery level data
+        Task {
+            await loadBatteryLevel()
+        }
     }
     
     // MARK: - Public Methods
@@ -241,6 +254,34 @@ class FocusViewModel: ObservableObject {
         focusState = .idle
         isTimerActive = false
         print("❌ Error: \(error.localizedDescription)")
+    }
+    
+    // MARK: - Battery Level Loading
+    
+    private func loadBatteryLevel() async {
+        // Fetch health data (handle errors gracefully)
+        let sleepData = try? await healthKitManager.fetchLastNightSleep()
+        let hrvAverage = try? await healthKitManager.fetchAverageHRV()
+        let activityData = try? await healthKitManager.fetchActivitySummary()
+        
+        // Calculate body battery (even with partial data)
+        currentBodyBattery = bodyBatteryCalculator.calculateBodyBattery(
+            sleepData: sleepData,
+            hrvAverage: hrvAverage,
+            activityData: activityData
+        )
+        
+        // Update battery level (0.0 - 1.0)
+        if let battery = currentBodyBattery {
+            batteryLevel = Double(battery.score) / 100.0
+        }
+        
+        print("✅ Battery level loaded in FocusScreen: \(currentBodyBattery?.score ?? 0)/100")
+    }
+    
+    /// Refresh battery level data
+    func refreshBatteryLevel() async {
+        await loadBatteryLevel()
     }
 }
 

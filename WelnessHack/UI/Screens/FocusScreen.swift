@@ -20,11 +20,9 @@ struct FocusScreen: View {
                 // MARK: - Clock/Timer Section (centrado en pantalla)
                 Spacer()
                 BatteryChargingView(
-                    batteryLevel: 0.45,
+                    batteryLevel: viewModel.batteryLevel,
                     onBreakRequested: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            showBreak = true
-                        }
+                        viewModel.startBreakSession(isLongBreak: false)
                     }
                 )
                 

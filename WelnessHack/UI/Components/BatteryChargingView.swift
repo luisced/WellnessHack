@@ -1,7 +1,6 @@
 import SwiftUI
-import SplineRuntime
 
-// MARK: - Battery Charging View with Spline
+// MARK: - Battery Charging View
 
 struct BatteryChargingView: View {
     let batteryLevel: Double // 0.0 to 1.0
@@ -10,8 +9,8 @@ struct BatteryChargingView: View {
     var body: some View {
         VStack(spacing: 24) {
             HStack(alignment: .center, spacing: 20) {
-                // MARK: - Spline Battery Animation
-                splineBatteryView
+                // MARK: - Vector Battery Animation
+                BatteryVectorView(batteryLevel: batteryLevel)
                     .frame(maxWidth: 180)
                 
                 VStack(alignment: .leading, spacing: 12) {
@@ -36,80 +35,6 @@ struct BatteryChargingView: View {
         }
         .padding(.horizontal, 20)
     }
-    
-    // MARK: - Spline Battery View
-    
-    private var splineBatteryView: some View {
-        ZStack {
-            // Spline background for battery charging animation
-            if let url = Bundle.main.url(
-                forResource: "battery_charging_animation_copy",
-                withExtension: "splineswift"
-            ) {
-                SplineView(sceneFileURL: url)
-                    .frame(height: 200)
-                    .scaleEffect(1.2)
-                    .clipped()
-            }
-//            else {
-//                // Fallback battery animation
-//                fallbackBatteryAnimation
-//            }
-            
-            // Battery percentage overlay
-//            VStack {
-//                Spacer()
-//                HStack {
-//                    Spacer()
-////                    Text("\(Int(batteryLevel * 100))%")
-////                        .font(.system(size: 32, weight: .bold, design: .rounded))
-////                        .foregroundColor(.white)
-////                        .shadow(color: .black.opacity(0.3), radius: 2)
-//                }
-//                .padding(.trailing, 20)
-//                .padding(.bottom, 20)
-//            }
-        }
-        .frame(height: 200)
-        .background(Color.black.opacity(0.1))
-        .cornerRadius(20)
-    }
-    
-    // MARK: - Fallback Battery Animation
-    
-//    private var fallbackBatteryAnimation: some View {
-//        ZStack {
-//            // Battery shape
-//            RoundedRectangle(cornerRadius: 8)
-//                .stroke(Color.white.opacity(0.3), lineWidth: 3)
-//                .frame(width: 120, height: 60)
-//            
-//            // Battery fill
-//            RoundedRectangle(cornerRadius: 6)
-//                .fill(
-//                    LinearGradient(
-//                        colors: batteryGradientColors,
-//                        startPoint: .leading,
-//                        endPoint: .trailing
-//                    )
-//                )
-//                .frame(width: CGFloat(batteryLevel * 108), height: 48)
-//                .animation(.easeInOut(duration: 1.0), value: batteryLevel)
-//            
-//            // Battery cap
-//            Rectangle()
-//                .fill(Color.white.opacity(0.3))
-//                .frame(width: 8, height: 20)
-//                .offset(x: 64)
-//            
-//            // Charging bolt
-//            Image(systemName: "bolt.fill")
-//                .font(.system(size: 24))
-//                .foregroundColor(.white)
-//                .opacity(0.8)
-//        }
-//        .scaleEffect(1.5)
-//    }
     
     // MARK: - Battery Level Meter
     
