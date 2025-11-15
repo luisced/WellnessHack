@@ -189,17 +189,6 @@ struct VapiChatScreen: View {
             print("❌ HealthKit authorization failed: \(error)")
         }
     }
-    
-    private func sendTextMessage() {
-        guard !messageText.isEmpty else { return }
-        
-        Task {
-            await viewModel.sendMessage(messageText)
-            messageText = ""
-            // Hide keyboard
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        }
-    }
 }
 
 // MARK: - Chat Messages Scroll View
