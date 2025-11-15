@@ -209,9 +209,7 @@ struct BreakScreen: View {
             if breakTimer > 0 {
                 breakTimer -= 1
             } else {
-                // Timer finished
                 stopTimer()
-                // TODO: Show completion notification
             }
         }
     }

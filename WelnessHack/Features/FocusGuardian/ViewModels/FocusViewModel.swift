@@ -223,9 +223,9 @@ enum SessionType {
     
     var displayName: String {
         switch self {
-        case .focus: return "FOCUS TIME"
-        case .shortBreak: return "SHORT BREAK"
-        case .longBreak: return "LONG BREAK"
+        case .focus: return "TIEMPO DE ENFOQUE"
+        case .shortBreak: return "DESCANSO CORTO"
+        case .longBreak: return "DESCANSO LARGO"
         }
     }
     

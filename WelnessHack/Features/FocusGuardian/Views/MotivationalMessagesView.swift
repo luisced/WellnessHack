@@ -1,8 +1,6 @@
 import SwiftUI
 import Combine
 
-// Color extensions already exist in ClockView.swift
-
 /// Vista de las frases motivacionales en bubbles verdes
 struct MotivationalBubbleView: View {
     let message: String
@@ -97,29 +95,29 @@ struct MotivationalMessagesView: View {
 
 struct MotivationalMessages {
     static let focusMessages = [
-        "You're doing great! Keep going.",
-        "Focus is your superpower.",
-        "Every minute counts towards your goals.",
-        "Deep breaths. You've got this.",
-        "Productivity flows when you're in the zone.",
-        "Your future self will thank you.",
-        "Stay present, stay focused.",
-        "Great things take time and focus.",
-        "You're building something amazing.",
-        "Consistency is key to success."
+        "¡Lo estás haciendo genial! Sigue así.",
+        "El enfoque es tu superpoder.",
+        "Cada minuto cuenta para tus metas.",
+        "Respira profundo. Tú puedes.",
+        "La productividad fluye en la zona.",
+        "Tu yo del futuro te lo agradecerá.",
+        "Mantente presente, mantente enfocado.",
+        "Las grandes cosas toman tiempo y enfoque.",
+        "Estás construyendo algo increíble.",
+        "La consistencia es clave para el éxito."
     ]
     
     static let breakMessages = [
-        "Time to recharge your mind.",
-        "A good break leads to better focus.",
-        "Rest is productive too.",
-        "Take a moment to breathe.",
-        "You've earned this break.",
-        "Stretch, hydrate, and reset.",
-        "Short breaks, long-term gains.",
-        "Your brain needs this pause.",
-        "Refresh to perform better.",
-        "Balance is the key to productivity."
+        "Hora de recargar tu mente.",
+        "Un buen descanso lleva a mejor enfoque.",
+        "El descanso también es productivo.",
+        "Tómate un momento para respirar.",
+        "Te has ganado este descanso.",
+        "Estírate, hidrátate y reiníciate.",
+        "Descansos cortos, ganancias a largo plazo.",
+        "Tu cerebro necesita esta pausa.",
+        "Refréscate para rendir mejor.",
+        "El equilibrio es clave para la productividad."
     ]
 }
 
@@ -132,7 +130,7 @@ struct MotivationalMessages {
         VStack(spacing: 60) {
             // Single bubble
             MotivationalBubbleView(
-                message: "You're doing great! Keep going.",
+                message: "¡Lo estás haciendo genial! Sigue así.",
                 isVisible: true
             )
             
