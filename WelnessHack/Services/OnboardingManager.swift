@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// Manager para manejar el flujo de onboarding conversacional
 class OnboardingManager: ObservableObject {
