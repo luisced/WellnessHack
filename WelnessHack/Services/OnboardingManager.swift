@@ -1,7 +1,6 @@
 import Foundation
 
 /// Manager para manejar el flujo de onboarding conversacional
-@MainActor
 class OnboardingManager: ObservableObject {
     
     // MARK: - Published Properties
@@ -36,6 +35,7 @@ class OnboardingManager: ObservableObject {
     
     // MARK: - Profile Management
     
+    @MainActor
     func saveProfile() {
         userProfile.lastUpdated = Date()
         
@@ -46,11 +46,13 @@ class OnboardingManager: ObservableObject {
         }
     }
     
+    @MainActor
     func updateProfile(_ updates: (inout UserProfile) -> Void) {
         updates(&userProfile)
         saveProfile()
     }
     
+    @MainActor
     func completeOnboarding() {
         userProfile.onboardingCompleted = true
         userProfile.onboardingDate = Date()
@@ -59,6 +61,7 @@ class OnboardingManager: ObservableObject {
         print("🎉 Onboarding completed!")
     }
     
+    @MainActor
     func resetOnboarding() {
         userProfile = UserProfile()
         isOnboardingComplete = false
@@ -70,6 +73,7 @@ class OnboardingManager: ObservableObject {
     
     // MARK: - Onboarding Flow
     
+    @MainActor
     func moveToNextStep() {
         currentStep = currentStep.next()
     }
