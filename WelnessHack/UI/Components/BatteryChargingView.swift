@@ -37,7 +37,7 @@ struct BatteryChargingView: View {
         .padding(.horizontal, 20)
 
         Color.clear
-        origin/ui_calendar
+        
     }
     
     // MARK: - Battery Level Meter
