@@ -54,25 +54,27 @@ struct MainTabView: View {
                     .transition(.opacity)
             }
             
-            // Contenido de la pantalla actual con padding inferior fijo para la tab bar
+            // Contenido de la pantalla actual (pantalla completa)
             screenContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.bottom, isBreakActive ? 0 : 100) // Espacio fijo para la tab bar
                 .offset(x: isDragging ? dragOffset : 0)
                 .gesture(swipeGesture)
-            
-            // Custom Tab Bar con posición absoluta fija
-            if !isBreakActive {
-                VStack {
-                    Spacer()
-                    CustomTabBar(
-                        selectedTab: $selectedTab,
-                        tabs: tabs
-                    )
-                }
-                .ignoresSafeArea(.keyboard)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+                .overlay(
+                    // Custom Tab Bar flotante con posición fija absoluta
+                    VStack {
+                        Spacer()
+                        if !isBreakActive {
+                            CustomTabBar(
+                                selectedTab: $selectedTab,
+                                tabs: tabs
+                            )
+                            .padding(.bottom, 34) // Posición fija desde el bottom
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                        }
+                    }
+                    .ignoresSafeArea(.keyboard)
+                    , alignment: .bottom
+                )
         }
         .onChange(of: selectedTab) { oldValue, newValue in
             previousTab = oldValue
@@ -102,7 +104,7 @@ struct MainTabView: View {
                 VapiChatScreen(splashCompleted: splashCompleted)
             }
         }
-        .animation(.timingCurve(0.4, 0, 0.2, 1, duration: 0.5), value: selectedTab) // Opción A: Apple-style timing
+        .animation(.timingCurve(0.4, 0, 0.2, 1, duration: 0.5), value: selectedTab)
     }
     
     @ViewBuilder
@@ -277,16 +279,16 @@ struct MainTabView: View {
     
     private func getGradientColors(for tab: Int) -> [Color] {
         switch tab {
-        case 0: // VapiChat
+        case 0:
             return [Color.vapiGradientStart, Color.vapiGradientEnd]
-        case 1: // Calendar - gradiente azul a menta
+        case 1:
             return [Color(hex: "87CEEB"), Color.calendarMint]
-        case 2: // Dashboard - gradiente azul a menta (diagonal invertida)
+        case 2:
             return [Color(hex: "87CEEB"), Color.calendarMint]
-        case 3: // FocusScreen (ya tiene su propio gradiente)
+        case 3:
             return [Color.focusBackground, Color.focusBlue.opacity(0.3)]
         default:
-            return [Color(hex: "87CEEB"), Color(hex: "87CEEB")]
+            return [Color.white, Color.white]
         }
     }
 }
@@ -354,25 +356,25 @@ struct InterpolatedBackgroundView: View {
     private var currentTabBackground: some View {
         Group {
             switch selectedTab {
-            case 0: // VapiChat
+            case 0:
                 LinearGradient(
                     colors: [Color.vapiGradientStart, Color.vapiGradientEnd],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-            case 1: // Calendar - gradiente azul a menta
+            case 1:
                 LinearGradient(
                     colors: [Color(hex: "87CEEB"), Color.calendarMint],
                     startPoint: .bottomLeading,
                     endPoint: .topTrailing
                 )
-            case 2: // Dashboard - gradiente azul a menta (diagonal invertida)
+            case 2:
                 LinearGradient(
                     colors: [Color(hex: "87CEEB"), Color.calendarMint],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-            case 3: // FocusScreen - usa color base (azul celeste)
+            case 3:
                 Color.clear
             default:
                 Color.clear
@@ -431,31 +433,31 @@ struct AnimatedGradientBackground: View {
     var body: some View {
         Group {
             switch selectedTab {
-            case 0: // VapiChat
+            case 0:
                 LinearGradient(
                     colors: [Color.vapiGradientStart, Color.vapiGradientEnd],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-            case 1: // Calendar - gradiente azul a menta
+            case 1:
                 LinearGradient(
                     colors: [Color(hex: "87CEEB"), Color.calendarMint],
                     startPoint: .bottomLeading,
                     endPoint: .topTrailing
                 )
-            case 2: // Dashboard - gradiente azul a menta (diagonal invertida)
+            case 2:
                 LinearGradient(
                     colors: [Color(hex: "87CEEB"), Color.calendarMint],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-            case 3: // FocusScreen - usa su propio background
+            case 3:
                 Color.clear
             default:
-                Color(hex: "87CEEB")
+                Color.white
             }
         }
-        .animation(.easeInOut(duration: 0.8), value: selectedTab) // Opción A: 0.8s smooth
+        .animation(.easeInOut(duration: 0.8), value: selectedTab)
     }
 }
 

@@ -5,11 +5,9 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            // Pantalla principal
             MainTabView(splashCompleted: !showSplash)
                 .zIndex(0)
             
-            // Pantalla de carga superpuesta
             if showSplash {
                 SplashScreen(isActive: $showSplash)
                     .transition(.opacity)
@@ -18,35 +16,6 @@ struct ContentView: View {
         }
     }
 }
-
-// MARK: - Legacy TabView (commented out for reference)
-/*
-struct ContentView_Legacy: View {
-    var body: some View {
-        TabView {
-            EnergyCoachView()
-                .tabItem {
-                    Label("Coach", systemImage: "waveform.circle.fill")
-                }
-            
-            CalendarScreen()
-                .tabItem {
-                    Label("Calendar", systemImage: "calendar")
-                }
-            
-            FocusScreen(isBreakActive: .constant(false))
-                .tabItem {
-                    Label("Focus", systemImage: "timer")
-                }
-            
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
-        }
-    }
-}
-*/
 
 // MARK: - Settings View
 

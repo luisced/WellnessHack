@@ -14,20 +14,19 @@ struct AvatarView: View {
     
     var body: some View {
         ZStack {
-            // Glow effect cuando está hablando
             if isActive {
                 Circle()
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.3), // #A2D9CE
-                                Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.2)  // #71ADE1
+                                Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.3),
+                                Color(red: 0.44, green: 0.68, blue: 0.88).opacity(0.2)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 240, height: 240)
+                    .frame(width: 320, height: 320)
                     .scaleEffect(isGlowing ? 1.2 : 1.0)
                     .opacity(isGlowing ? 0 : 0.8)
                     .animation(
@@ -37,25 +36,22 @@ struct AvatarView: View {
                     )
             }
             
-            // Spline 3D Robot Avatar
             if let url = Bundle.main.url(
                 forResource: "rememberall_robot_copy",
                 withExtension: "splineswift"
             ) {
                 SplineView(sceneFileURL: url)
-                    .frame(width: 220, height: 220)
+                    .frame(width: 300, height: 300)
                     .scaleEffect(scale)
                     .offset(y: offsetY)
                     .opacity(opacity)
                     .shadow(color: Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4), radius: 20, x: 0, y: 10)
                     .shadow(color: Color.black.opacity(0.2), radius: 30, x: 0, y: 15)
             } else {
-                // Fallback si no se encuentra el archivo Spline
                 avatarFallback
             }
         }
         .onAppear {
-            // Animación de entrada desde abajo con escala
             withAnimation(.spring(response: 0.8, dampingFraction: 0.75)) {
                 scale = 1.0
                 offsetY = 0
@@ -109,11 +105,11 @@ struct AvatarView: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: 190, height: 190)
+                .frame(width: 280, height: 280)
                 .background(
                     Circle()
                         .fill(.ultraThinMaterial)
-                        .frame(width: 190, height: 190)
+                        .frame(width: 280, height: 280)
                 )
                 .overlay(
                     Circle()

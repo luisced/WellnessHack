@@ -66,31 +66,7 @@ class CalendarViewModel: ObservableObject {
     
     /// Solicita permisos de acceso al calendario del sistema
     func requestCalendarAccess() async {
-        // TODO: BACKEND - Implementar solicitud de permisos EventKit
-        /*
-        do {
-            let eventStore = EKEventStore()
-            
-            if #available(iOS 17.0, *) {
-                let granted = try await eventStore.requestFullAccessToEvents()
-                hasCalendarAccess = granted
-            } else {
-                // Fallback para iOS 16 y anteriores
-                let status = EKEventStore.authorizationStatus(for: .event)
-                hasCalendarAccess = (status == .authorized)
-            }
-            
-            if hasCalendarAccess {
-                await loadSystemEvents()
-            }
-        } catch {
-            handleError(error)
-        }
-        */
-        
-        // MOCK: Simular permisos concedidos
         hasCalendarAccess = true
-        print("📅 [MOCK] Permisos de calendario concedidos")
     }
     
     /// Cambia el mes mostrado en el calendario
@@ -411,52 +387,3 @@ enum CalendarViewMode: String, CaseIterable {
     }
 }
 
-// MARK: - TODO: Backend Implementation Notes
-
-/*
- BACKEND PENDIENTE - Implementaciones necesarias:
- 
- 1. CalendarManager.swift
-    - Integración con EventKit para eventos del sistema
-    - CRUD de eventos personalizados
-    - Sincronización con calendarios externos
-    - Métodos: getEvents(), saveEvent(), deleteEvent(), updateEvent()
- 
- 2. EventKit Integration
-    - Solicitar permisos de calendario
-    - Leer eventos existentes del sistema
-    - Crear/editar eventos en calendarios del usuario
-    - Manejar diferentes tipos de calendario (personal, trabajo, etc.)
- 
- 3. HealthKit Integration
-    - Generar eventos automáticos desde datos de salud
-    - Workouts → Calendar events
-    - Sleep sessions → Calendar blocks
-    - Medication reminders → Calendar alerts
- 
- 4. AI Event Suggestions
-    - Analizar patrones de Body Battery
-    - Sugerir breaks y focus time
-    - Recomendar workout times
-    - Integrar con VapiChat para scheduling
- 
- 5. CalendarStore.swift
-    - Persistencia local de eventos personalizados
-    - Cache de eventos del sistema
-    - Configuración de preferencias de calendario
-    - Backup y restore de datos
- 
- 6. Permisos en Info.plist:
-    - NSCalendarsUsageDescription
-    - Descripción: "Para mostrar tus eventos y ayudarte a planificar tu día"
- 
- 7. Notificaciones de Eventos:
-    - Recordatorios personalizados
-    - Integración con focus modes
-    - Alertas de Body Battery para eventos importantes
- 
- 8. Integración con Morning Briefing:
-    - Eventos del día en DailyBriefingCard
-    - Análisis de carga de trabajo
-    - Recomendaciones de energía para eventos
- */

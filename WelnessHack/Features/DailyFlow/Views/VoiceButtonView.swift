@@ -23,7 +23,7 @@ struct VoiceButtonView: View {
                             ),
                             lineWidth: 4
                         )
-                        .frame(width: 190, height: 190)
+                        .frame(width: 120, height: 120)
                         .scaleEffect(isPulsing ? 1.2 : 1.0)
                         .opacity(isPulsing ? 0 : 1)
                         .animation(
@@ -42,12 +42,12 @@ struct VoiceButtonView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 160, height: 160)
+                    .frame(width: 120, height: 120)
                     .background(
                         // Glass blur effect
                         Circle()
                             .fill(.ultraThinMaterial)
-                            .frame(width: 160, height: 160)
+                            .frame(width: 120, height: 120)
                     )
                     .overlay(
                         // Glass border
@@ -69,7 +69,7 @@ struct VoiceButtonView: View {
                 
                 // Icon (sin texto)
                 Image(systemName: buttonIcon)
-                    .font(.system(size: 50, weight: .medium))
+                    .font(.system(size: 40, weight: .medium))
                     .foregroundColor(.white)
             }
         }

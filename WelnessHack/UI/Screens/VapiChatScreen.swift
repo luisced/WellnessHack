@@ -36,7 +36,6 @@ struct VapiChatScreen: View {
             // MARK: - Content Overlay
             
             VStack(spacing: 0) {
-                // Top spacing
                 Spacer()
                     .frame(height: 80)
                 
@@ -45,28 +44,21 @@ struct VapiChatScreen: View {
                     isActive: viewModel.isBotSpeaking,
                     imageURL: viewModel.avatarImageURL
                 )
+                .offset(x: 25)
                 
                 Spacer()
-                    .frame(height: 80)
+                    .frame(height: 20)
                 
-                // MARK: - Audio Waveform (cuando el bot habla)
+                // MARK: - Audio Waveform
                 AudioWaveformView(isAnimating: viewModel.isBotSpeaking)
-                    .frame(height: 80)
+                    .frame(height: 50)
                     .padding(.horizontal, 40)
                 
-                // MARK: - Chat Messages (if connected)
-                if viewModel.isConnected && !viewModel.messages.isEmpty {
-                    ChatMessagesScrollView(messages: viewModel.messages)
-                        .frame(maxHeight: 200)
-                        .padding(.horizontal, 20)
-                }
-                
                 Spacer()
-                
+                    .frame(height: 20)
                 
                 // MARK: - Voice Button & Controls
                 VStack(spacing: 16) {
-                    // Main Voice Button
                     VoiceButtonView(
                         isConnected: viewModel.isConnected,
                         agentState: viewModel.isBotSpeaking ? .speaking : .listening,
@@ -78,7 +70,6 @@ struct VapiChatScreen: View {
                         }
                     )
                     
-                    // Connection Status Indicator
                     if viewModel.isConnected {
                         HStack(spacing: 8) {
                             Circle()
@@ -121,7 +112,16 @@ struct VapiChatScreen: View {
                         }
                     }
                 }
-                .padding(.bottom, 20) // MainTabView maneja el espacio para la tab bar
+                
+                // MARK: - Chat Messages (if connected)
+                if viewModel.isConnected && !viewModel.messages.isEmpty {
+                    ChatMessagesScrollView(messages: viewModel.messages)
+                        .frame(maxHeight: 200)
+                        .padding(.horizontal, 20)
+                }
+                
+                Spacer()
+                    .frame(height: 160)
             }
         }
         .alert("Error", isPresented: $viewModel.showError) {

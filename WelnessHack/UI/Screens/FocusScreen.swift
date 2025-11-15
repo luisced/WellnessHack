@@ -40,15 +40,19 @@ struct FocusScreen: View {
                         }
                     )
                     .padding(.vertical, 40)
-    //                centerContentView
                     
                     Spacer()
-                    
-                    // MARK: - Motivational Messages
-                    MotivationalMessagesView(messages: viewModel.currentMessages)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20) // Ajustado para tab bar fija
                 }
+                .overlay(
+                    // MARK: - Motivational Messages (flotantes por encima)
+                    VStack {
+                        Spacer()
+                        MotivationalMessagesView(messages: viewModel.currentMessages)
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 140) // Altura desde el bottom
+                    }
+                    , alignment: .bottom
+                )
             }
         }
         .alert("Error", isPresented: $viewModel.showError) {

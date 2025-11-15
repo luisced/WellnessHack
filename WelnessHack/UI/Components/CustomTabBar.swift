@@ -23,7 +23,17 @@ struct CustomTabBar: View {
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 12)
-        .background(Color.clear) // Fondo completamente transparente
+        .background(
+            // Fondo verde menta cristalino PURO (sin material gris)
+            Capsule()
+                .fill(Color.calendarMint.opacity(0.3))
+                .background(
+                    Capsule()
+                        .fill(.thinMaterial)
+                        .opacity(0.5)
+                )
+                .shadow(color: Color.calendarMint.opacity(0.4), radius: 25, x: 0, y: -8)
+        )
         .padding(.horizontal, 40) // Más compacta
         .padding(.bottom, 8) // Altura consistente en todas las pantallas
         .drawingGroup() // Mejora performance de animaciones con Metal rendering

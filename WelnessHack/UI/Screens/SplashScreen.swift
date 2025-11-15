@@ -41,7 +41,7 @@ struct SplashScreen: View {
                     SplineView(sceneFileURL: url)
                         .frame(width: 300, height: 300)
                         .scaleEffect(scale)
-                        .offset(y: 80 + offsetY) // Mucho más abajo para transición evidente
+                        .offset(x: 25, y: 80 + offsetY) // Centrado horizontalmente igual que en VapiChat
                 } else {
                     // Fallback si no se encuentra el archivo
                     Circle()
@@ -53,16 +53,16 @@ struct SplashScreen: View {
                                 .foregroundColor(.appAccent)
                         )
                         .scaleEffect(scale)
-                        .offset(y: -50)
+                        .offset(x: 25, y: -50)
                 }
                 
                 // Texto de bienvenida
                 VStack(spacing: 12) {
-                    Text("Bienvenido a")
+                    Text("")
                         .font(.system(size: 24, weight: .light, design: .rounded))
                         .foregroundColor(.white.opacity(0.8))
                     
-                    Text("Wellness Hack")
+                    Text("ME IN")
                         .font(.system(size: 36, weight: .bold, design: .rounded))
                         .foregroundColor(.appAccent)
                         .tracking(2)
