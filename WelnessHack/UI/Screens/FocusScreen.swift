@@ -11,29 +11,40 @@ struct FocusScreen: View {
             // MARK: - Spline Background (fondo completo)
             backgroundView
             
-            // MARK: - Content
-            VStack(spacing: 0) {
-                // MARK: - Title (centrado y estático)
-                titleView
-                    .padding(.top, 140)
-                
-                // MARK: - Clock/Timer Section (centrado en pantalla)
-                Spacer()
-                BatteryChargingView(
-                    batteryLevel: viewModel.batteryLevel,
-                    onBreakRequested: {
-                        viewModel.startBreakSession(isLongBreak: false)
+            if showBreak {
+                BreakScreen(onBackToMain: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showBreak = false
                     }
-                )
-                
-//                centerContentView
-                
-                Spacer()
-                
-                // MARK: - Motivational Messages (más abajo)
-                MotivationalMessagesView(messages: viewModel.currentMessages)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 170) // Aumentado para no estar tapado por tab bar
+                })
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            } else {
+                // MARK: - Content
+                VStack(spacing: 0) {
+                    // MARK: - Title (centrado y estático)
+                    titleView
+                        .padding(.top, 140)
+                    
+                    // MARK: - Clock/Timer Section (centrado en pantalla)
+                    Spacer()
+                    BatteryChargingView(
+                        batteryLevel: viewModel.batteryLevel,
+                        onBreakRequested: {
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                showBreak = true
+                            }
+                        }
+                    )
+                    
+    //                centerContentView
+                    
+                    Spacer()
+                    
+                    // MARK: - Motivational Messages (más abajo)
+                    MotivationalMessagesView(messages: viewModel.currentMessages)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 170) // Aumentado para no estar tapado por tab bar
+                }
             }
         }
         .ignoresSafeArea(.all)
