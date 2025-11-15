@@ -8,7 +8,9 @@ struct AvatarView: View {
     let imageURL: String?
     
     @State private var isGlowing = false
-    @State private var scale: CGFloat = 1.0
+    @State private var scale: CGFloat = 0.7
+    @State private var offsetY: CGFloat = 20
+    @State private var opacity: Double = 0.0
     
     var body: some View {
         ZStack {
@@ -43,6 +45,8 @@ struct AvatarView: View {
                 SplineView(sceneFileURL: url)
                     .frame(width: 220, height: 220)
                     .scaleEffect(scale)
+                    .offset(y: offsetY)
+                    .opacity(opacity)
                     .shadow(color: Color(red: 0.64, green: 0.85, blue: 0.81).opacity(0.4), radius: 20, x: 0, y: 10)
                     .shadow(color: Color.black.opacity(0.2), radius: 30, x: 0, y: 15)
             } else {
@@ -51,6 +55,13 @@ struct AvatarView: View {
             }
         }
         .onAppear {
+            // Animación de entrada desde abajo con escala
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.75)) {
+                scale = 1.0
+                offsetY = 0
+                opacity = 1.0
+            }
+            
             if isActive {
                 isGlowing = true
                 startPulseAnimation()

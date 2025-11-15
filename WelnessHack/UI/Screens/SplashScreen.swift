@@ -32,7 +32,7 @@ struct SplashScreen: View {
             VStack(spacing: 40) {
                 Spacer()
                 
-                // Spline 3D Robot centrado y ligeramente hacia arriba
+                // Spline 3D Robot centrado
                 if let url = Bundle.main.url(
                     forResource: "rememberall_robot_copy",
                     withExtension: "splineswift"
@@ -40,7 +40,7 @@ struct SplashScreen: View {
                     SplineView(sceneFileURL: url)
                         .frame(width: 300, height: 300)
                         .scaleEffect(scale)
-                        .offset(y: -50) // Ligeramente hacia arriba
+                        .offset(y: 20) // Más abajo para que se note el movimiento hacia arriba
                 } else {
                     // Fallback si no se encuentra el archivo
                     Circle()
@@ -86,9 +86,9 @@ struct SplashScreen: View {
             
             // Esperar 4 segundos y luego desvanecer
             DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                withAnimation(.easeInOut(duration: 1.0)) {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                     opacity = 0.0
-                    scale = 1.1
+                    scale = 0.7 // Escala más pequeña para transición más dramática
                 }
                 
                 // Marcar como inactivo después de la animación
