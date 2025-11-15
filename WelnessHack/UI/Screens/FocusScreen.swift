@@ -10,6 +10,7 @@ struct FocusScreen: View {
         ZStack {
             // MARK: - Spline Background (fondo completo)
             backgroundView
+                .ignoresSafeArea(.all)
             
             if showBreak {
                 BreakScreen(onBackToMain: {
@@ -43,11 +44,10 @@ struct FocusScreen: View {
                     // MARK: - Motivational Messages (más abajo)
                     MotivationalMessagesView(messages: viewModel.currentMessages)
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 170) // Aumentado para no estar tapado por tab bar
+                        .padding(.bottom, 120) // Ajustado para dar espacio a la tab bar
                 }
             }
         }
-        .ignoresSafeArea(.all)
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) { }
         } message: {

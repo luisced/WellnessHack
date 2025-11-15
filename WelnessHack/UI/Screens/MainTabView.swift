@@ -95,7 +95,7 @@ struct MainTabView: View {
                 dashboardScreen
                     .transition(getSwipeTransition(from: previousTab, to: 3))
             default:
-                VapiChatScreen()
+                VapiChatScreen(splashCompleted: splashCompleted)
             }
         }
         .animation(.timingCurve(0.4, 0, 0.2, 1, duration: 0.5), value: selectedTab) // Opción A: Apple-style timing
