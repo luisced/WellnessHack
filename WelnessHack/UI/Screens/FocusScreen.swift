@@ -23,7 +23,7 @@ struct FocusScreen: View {
                 VStack(spacing: 0) {
                     // MARK: - Title (centrado y estático)
                     titleView
-                        .padding(.top, 140)
+                        .padding(.top, 100)
                     
                     // MARK: - Clock/Timer Section (centrado en pantalla)
                     Spacer()
@@ -35,7 +35,7 @@ struct FocusScreen: View {
                             }
                         }
                     )
-                    
+                    .padding(.vertical, 40)
     //                centerContentView
                     
                     Spacer()
@@ -100,7 +100,7 @@ struct FocusScreen: View {
         // Título estático (sin cambios de tamaño)
         Text("Body Battery")
             .font(.system(size: 36, weight: .bold, design: .default))
-            .foregroundColor(Color.calendarMint.opacity(0.7))
+            .foregroundColor(Color.appAccent.opacity(0.7))
             .tracking(3)
     }
     
